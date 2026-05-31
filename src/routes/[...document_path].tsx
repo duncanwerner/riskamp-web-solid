@@ -118,8 +118,12 @@ export default function Page() {
 
 
   createEffect(on(sidebar, (value) => {
+
     if (value) {
-      if (split() >= 100) {
+
+      console.info("Value", value, "split", split());
+
+      if (split() >= 90) {
         setSplit(75);
       }
     }
@@ -134,16 +138,31 @@ export default function Page() {
       split, 
       (value) => {
         localStorage.setItem('split', JSON.stringify(value));
+        if (value >= 90) {
+          setSidebar(undefined);
+        }
       }, 
       { defer: true }
     )
   );
 
+  function active_sidebar() {
+
+    // I guess this has to be the threshold... that's unfortunate, we
+    // should either have a visible/hidden signal or make the threshold
+    // set split -> max
+
+    if (split() < 90) {
+      return sidebar();
+    }
+    return undefined;
+  }
+
   return (
     <main class="app">
       
       <div>
-        <Toolbar oncommand={HandleCommand}/>
+        <Toolbar oncommand={HandleCommand} sidebar={active_sidebar}/>
       </div>
 
       <div>
@@ -156,16 +175,6 @@ export default function Page() {
           </div>
         </Splitter>
       </div>  
-
-      {/* 
-      <Dialog bind={OpenSignal} closebox moveable resizeable>
-          <header>DIALOGIUM</header>
-          <section>humpa humpa humpa humpa humpa humpa humpa humpa humpa </section>
-          <footer>
-            OLAVE
-          </footer>
-      </Dialog>
-      */}
 
       <TestDialog 
           bind={OpenSignal} 

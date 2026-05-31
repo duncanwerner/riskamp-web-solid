@@ -46,6 +46,8 @@
   --toolbar-control-active-background: rgba(13, 148, 136, 0.1);
   --toolbar-divider-margin: 0 10px;
 
+  --icon-size: 16px;
+
 }
 
 body {

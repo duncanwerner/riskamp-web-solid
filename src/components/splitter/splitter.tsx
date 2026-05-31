@@ -15,6 +15,9 @@ interface Props {
   /** min value */
   min?: number;
 
+  /** max value */
+  max?: number;
+
   /** threshold; above this value we hide the right panel */
   threshold: number;
 
@@ -110,7 +113,7 @@ export const Splitter: Component<ParentProps<Partial<Props>>> = (props) => {
         const p = props.vertical ?
           (event.clientY - container_bounds.y) / container_bounds.height :
           (event.clientX - container_bounds.x) / container_bounds.width ;
-        setSplit(Math.max(resolved.min ?? 0, p * 100 + delta));
+        setSplit(Math.min(resolved.max ?? 100, Math.max(resolved.min ?? 0, p * 100 + delta)));
       }
     }
   }

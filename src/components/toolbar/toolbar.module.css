@@ -94,6 +94,7 @@ button.menu-item {
 
   border: 1px solid transparent;
 
+  */
 
   svg { 
     font-size: var(--icon-size); 
@@ -103,8 +104,6 @@ button.menu-item {
     font-size: var(--icon-size); 
     width: 1em;
   }
-
-  */
 
   &:not([disabled]):hover {
 

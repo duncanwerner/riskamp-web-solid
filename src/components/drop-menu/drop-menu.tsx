@@ -1,3 +1,7 @@
+/**
+ * DropMenu is the menu-bar menu control. Menus always drop down, are aligned
+ * to the bottom left of the button. The button has a caret on the right.
+ */
 
 import { ParentProps } from 'solid-js';
 import style from './drop-menu.module.css';

@@ -1,5 +1,5 @@
 
-import { ParentProps, Switch, Match, For } from 'solid-js';
+import { ParentProps, Switch, Match, For, Show } from 'solid-js';
 import style from './toolbar.module.css';
 import { Logo } from '../logo';
 import { DropMenu } from '~/components/drop-menu/drop-menu';
@@ -9,15 +9,18 @@ import '~/components/tabs.css';
 
 import { toolbar_config } from './toolbar-config';
 import html from 'solid-js/html';
-import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl } from './toolbar-utils';
+import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl } from './toolbar-utils';
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
 import { sessionSignal, loggedInSignal } from '~/lib/auth';
 import { goto } from '~/lib/navigate';
 import { appData, setAppData } from '~/lib/app-data';
 import { produce } from 'solid-js/store';
+import { bootstrap_icons } from 's5-icon-lib';
+import { MenuButton } from '../menu-button/menu-button';
 
 interface Props {
   oncommand: (command: ToolbarCommand & { key: ToolbarCommandKey}) => void|Promise<void>;
+  sidebar: () => string|undefined;
 };
 
 const tab_group_name = crypto.randomUUID();
@@ -73,6 +76,45 @@ export function Toolbar(props: ParentProps<Partial<Props>>) {
     props.oncommand?.(command);
   }
 
+  function CompositeMenu(props: {item: CompositeMenuControl}) {
+    return <>
+      <MenuButton>
+        <MenuButton.Static>
+          <button class={style['toolbar-button']} >
+            <Show when={props.item.commands[props.item.active].icon}>
+              <span ref={(el) => (el.innerHTML = props.item.commands[props.item.active].icon || '')} />
+            </Show>
+          </button>
+        </MenuButton.Static>
+        <MenuButton.Menu>
+          <menu>
+            <Switch>
+              <Match when={props.item.icons && props.item.text}>
+                <>both?</>
+              </Match>
+              <Match when={props.item.text}>
+                <>
+                  {props.item.commands.map(subitem => <li>
+                    <button class={style['toolbar-button']}>
+                      {t(subitem.title)}
+                    </button>
+                  </li>)}
+                </>
+              </Match>
+              <Match when={props.item.icons}>
+                <>
+                  {props.item.commands.map(subitem => <li>
+                    <button class={style['toolbar-button']} ref={(el) => (el.innerHTML = subitem.icon || '')} />
+                  </li>)}
+                </>
+              </Match>
+            </Switch>
+          </menu>
+        </MenuButton.Menu>
+      </MenuButton>
+    </>;
+  }
+
   return <>
     <div classList={{
       [style.toolbar]: true,
@@ -93,6 +135,19 @@ export function Toolbar(props: ParentProps<Partial<Props>>) {
                 {menu.items?.map(item => <li>
                   {item === 'separator' ? <hr/> :
                     <button class={style['menu-item']} onclick={event => HandleMenuItem(event, item)}>
+                      <Switch>
+                        <Match when={item.menuicon && item.icon}>
+                          <div class='display-contents'
+                               ref={(el) => (el.innerHTML = item.icon || '')}/>
+                        </Match>
+                        <Match when={props.sidebar?.() === item.key}>
+                          <div class='display-contents'
+                               ref={(el) => (el.innerHTML = bootstrap_icons.check2 || '')}/>
+                        </Match>
+                        <Match when={true}>
+                          <div class={style['svg-placeholder']}></div>
+                        </Match>
+                      </Switch>
                       <span>{t(item.title)}</span>
                     </button>}
                 </li>)}
@@ -123,6 +178,9 @@ export function Toolbar(props: ParentProps<Partial<Props>>) {
                   <Match when={Array.isArray(group)}>
                     <For each={group as Control[]}>{(item, index) =>
                       <Switch>
+                        <Match when={item.type === 'composite-menu'}>
+                          <CompositeMenu item={item as CompositeMenuControl}/>
+                        </Match>
                         <Match when={item.type === 'button'}>
                           <button class={style['toolbar-button']} 
                                   onclick={() => HandleCommand((item as ButtonControl).command)}

@@ -35,7 +35,7 @@ export function Sidebar() {
                  name={tab_group} checked ></input>
         </label>
         <div class="tab-content">
-          <Splitter vertical bind={[split, setSplit]} splitter-width={17}>
+          <Splitter vertical bind={[split, setSplit]} splitter-width={17} min={25} max={75}>
             <div data-top classList={{
               "flex-grow": true, 
               "overflow-y-scroll": true,
