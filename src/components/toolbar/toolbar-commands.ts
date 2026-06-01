@@ -341,9 +341,11 @@ export const ToolbarCommands = {
     icon: bs.type_underline,
     state_key: 'underline',
   },
+
   'strike': {
     title: 'toolbar.button.strikethrough.label',
     icon: bs.type_strikethrough,
+    state_key: 'strike',
   },
 
   'about-riskamp': {
