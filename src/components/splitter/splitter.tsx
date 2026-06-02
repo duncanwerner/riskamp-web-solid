@@ -1,5 +1,5 @@
 
-import { Component, createSignal, mergeProps, onMount, ParentProps, Signal } from 'solid-js'
+import { Accessor, Component, createSignal, mergeProps, onMount, ParentProps, Setter, Signal } from 'solid-js'
 
 // import using css modules, will scope
 import style from "./splitter.module.css";
@@ -10,7 +10,7 @@ interface Props {
   initial?: number;
 
   /** width of the splitter element. we'll draw a line in the middle using --splitter-color */
-  'splitter-width': number;
+  'splitter-width'?: number;
 
   /** min value */
   min?: number;
@@ -19,29 +19,28 @@ interface Props {
   max?: number;
 
   /** threshold; above this value we hide the right panel */
-  threshold: number;
+  threshold?: number;
 
-  /** optionally pass in your own signal pair to control the split */
-  bind?: Signal<number>; // ReturnType<typeof createSignal<number>>;
-
+  split: Accessor<number>;
+  setSplit: Setter<number>;
+  
   /** split vertically (the panels are vertically stacked) */
   vertical?: boolean;
 
 }
 
-const default_props: Props = {
+const default_props = {
   'splitter-width': 31,
   threshold: 100,
 };
 
-export const Splitter: Component<ParentProps<Partial<Props>>> = (props) => {
+export const Splitter: Component<ParentProps<Props>> = (props) => {
 
   const resolved = mergeProps(
     default_props, 
     props,
   );
 
-  const [split, setSplit] = props.bind || createSignal(resolved.initial ?? 50);
   const [dragging, setDragging] = createSignal(false);
 
   let mouse_mask: HTMLDivElement|undefined;
@@ -49,30 +48,30 @@ export const Splitter: Component<ParentProps<Partial<Props>>> = (props) => {
 
   const computed_style = () => {
     if (props.vertical) {
-      if (split() > resolved.threshold) {
+      if (props.split() > resolved.threshold) {
         return {
           'grid-template-rows': 
             `1fr 0px 0px`,
         };
       }
       return {
-        'grid-template-rows': `calc(${split()}% - ${resolved['splitter-width']/2}px) ${resolved['splitter-width']}px 1fr`,
+        'grid-template-rows': `calc(${props.split()}% - ${resolved['splitter-width']/2}px) ${resolved['splitter-width']}px 1fr`,
       };
     }
     else {
-      if (split() > resolved.threshold) {
+      if (props.split() > resolved.threshold) {
         return {
           'grid-template-columns': 
             `1fr 0px 0px`,
         };
       }
       return {
-        'grid-template-columns': `calc(${split()}% - ${resolved['splitter-width']/2}px) ${resolved['splitter-width']}px 1fr`,
+        'grid-template-columns': `calc(${props.split()}% - ${resolved['splitter-width']/2}px) ${resolved['splitter-width']}px 1fr`,
       };
     }
   };
 
-  const right_hidden = () => (split() > resolved.threshold);
+  const right_hidden = () => (props.split() > resolved.threshold);
   const splitter_hidden = () => right_hidden();
 
   let container_bounds = {
@@ -94,7 +93,7 @@ export const Splitter: Component<ParentProps<Partial<Props>>> = (props) => {
         (event.clientY - container_bounds.y) / container_bounds.height :
         (event.clientX - container_bounds.x) / container_bounds.width ;
 
-      delta = split() - (p * 100);
+      delta = props.split() - (p * 100);
       setDragging(true);
 
     }
@@ -113,7 +112,7 @@ export const Splitter: Component<ParentProps<Partial<Props>>> = (props) => {
         const p = props.vertical ?
           (event.clientY - container_bounds.y) / container_bounds.height :
           (event.clientX - container_bounds.x) / container_bounds.width ;
-        setSplit(Math.min(resolved.max ?? 100, Math.max(resolved.min ?? 0, p * 100 + delta)));
+        props.setSplit(Math.min(resolved.max ?? 100, Math.max(resolved.min ?? 0, p * 100 + delta)));
       }
     }
   }

@@ -1,5 +1,5 @@
 
-import { createEffect, onMount, Setter, ParentProps, children, JSX, Signal, Show, createSignal } from 'solid-js';
+import { createEffect, onMount, type Setter, ParentProps, children, JSX, Signal, Show, createSignal, type Accessor } from 'solid-js';
 import style from './dialog.module.css';
 import { bootstrap_icons } from 's5-icon-lib';
 import { OpenExternal } from '~/lib/navigate';
@@ -15,12 +15,12 @@ export interface Size {
 }
 
 export interface Props<T> {
-  // open: boolean;
 
-  bind: Signal<boolean>;
+  open: Accessor<boolean>;
+  setOpen: Setter<boolean>;
 
-  onClose?: () => void;
-  set_result?: Setter<T>;
+  // onClose?: () => void;
+  setResult?: Setter<T|undefined>;
 
   modal?: boolean;
 
@@ -51,19 +51,19 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
   let frame: HTMLDivElement|undefined;
   let mouse_mask: HTMLDivElement|undefined;
 
-  const [open, setOpen] = props.bind;
   const [dragging, setDragging] = createSignal<'move'|'resize'|false>(false);
   const [layout, setLayout] = props.bindlayout || createSignal<Position|undefined>(undefined);
   const [size, setSize] = props.bindsize || createSignal<Size|undefined>(undefined);
 
   function HandleEscape(event: KeyboardEvent) {
     if (event.key === 'Escape') {
-      setOpen(false);
+      props.setResult?.(undefined);
+      props.setOpen(false);
     }
   }
 
   createEffect(() => {
-    if (open()) {
+    if (props.open()) {
       if (dialog) {
         if (props.modal) {
           dialog.showModal();
@@ -83,7 +83,7 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
   });
 
   function onClose() {
-    setOpen(false);
+    props.setOpen(false);
   };
 
   onMount(() => {
@@ -224,7 +224,7 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
                       ref={(el) => (el.innerHTML = bootstrap_icons.question_circle || '')}/>
             </Show>
             <Show when={props.closebox}>
-              <button class={style['close-box']} onclick={() => setOpen(false)} 
+              <button class={style['close-box']} onclick={() => props.setOpen(false)} 
                       ref={(el) => (el.innerHTML = bootstrap_icons.x_lg || '')}/>
             </Show>
           </div>

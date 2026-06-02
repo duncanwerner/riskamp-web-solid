@@ -97,7 +97,7 @@ export function Sidebar(props: SidebarProps) {
                  ></input>
         </label>
         <div class="tab-content overflow-hidden">
-          <Splitter vertical bind={[split, setSplit]} splitter-width={17} min={25} max={75}>
+          <Splitter vertical split={split} setSplit={setSplit} splitter-width={17} min={25} max={75}>
             <div data-top classList={{
               "flex-grow": true, 
               "overflow-y-scroll": true,

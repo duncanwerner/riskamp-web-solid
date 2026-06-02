@@ -320,9 +320,10 @@ export function Toolbar(props: ParentProps<Props>) {
                           <RenderButton control={item as ButtonControl}/>
                         </Match>
                         <Match when={item.type === 'text-button'}>
-                          <button classList={{[style['toolbar-button']]: true, [style['text-button']]: true }}>
+                          <button classList={{[style['toolbar-button']]: true, [style['text-button']]: true }}
+                                  onclick={e => HandleCommand(e, (item as TextButtonControl).command)}>
                             <span ref={(el) => (el.innerHTML = (item as TextButtonControl).command.icon || '')} />
-                              <span>{t((item as TextButtonControl).command.title)}</span>
+                            <span>{t((item as TextButtonControl).command.title)}</span>
                           </button>
                         </Match>
                         <Match when={item.type === 'color-button'}>

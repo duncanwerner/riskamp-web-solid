@@ -1,4 +1,9 @@
 
+/**
+ * this is a bridge between treb's "external editors" and local
+ * components. we'll typically do this in dialogs or sidebars. 
+ */
+
 import type { DependencyList } from '@trebco/treb/treb-grid';
 import type { EmbeddedSpreadsheet, EmbeddedSpreadsheetBase } from 'riskamp-web';
 

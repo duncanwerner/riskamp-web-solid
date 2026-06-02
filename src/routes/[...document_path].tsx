@@ -15,10 +15,17 @@ import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Sidebar } from '~/components/sidebar/sidebar-main';
 import { OpenExternal } from '~/lib/navigate';
 
-import { RunSimulationDialog } from '~/components/dialogs/test-dialog/run-simulation-dialog/run-simulation-dialog';
+import { RunSimulationDialog } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
+import { SparklineDialog, SparklineData } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
+
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
-import type { CellStyle, Color } from 'riskamp-web';
+import { type CellStyle, type Color } from 'riskamp-web';
+import { Heuristics } from '@trebco/treb/treb-data-model';
+import { AwaitSignal } from '~/lib/await-signal';
+import { createStore } from 'solid-js/store';
+import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
+import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
 
 function Spin() {
   spinner.show();
@@ -72,6 +79,10 @@ export default function Page() {
     }
 
     switch (command.key) {
+      case 'sparkline':
+        InsertSparkline(getSheet());
+        break;
+
       case 'function-docs':
         OpenExternal('https://docs.riskamp.com');
         break;
@@ -300,7 +311,7 @@ export default function Page() {
       </div>
 
       <div>
-        <Splitter bind={[split, setSplit]} min={40} splitter-width={16} threshold={90}>
+        <Splitter split={split} setSplit={setSplit} min={40} splitter-width={16} threshold={90}>
           <div data-left>
             <Spreadsheet fill bind={[getSheet, setSheet]} function-handler={() => InsertFunction()}/>
           </div>
@@ -310,12 +321,10 @@ export default function Page() {
         </Splitter>
       </div>  
 
-      <TestDialog 
-          bind={OpenSignal} 
-          sheet={getSheet()} 
-          closebox moveable resizeable />
+      <SparklineDialog {...sparkline_props} sheet={getSheet} />
 
-      <RunSimulationDialog bind={RunSimulationSignal} 
+      <RunSimulationDialog open={RunSimulationSignal[0]} 
+                           setOpen={RunSimulationSignal[1]}
                            auto-start={auto()}
                            sheet={getSheet()} />
 

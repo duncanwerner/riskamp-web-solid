@@ -18,7 +18,6 @@ export function RunSimulationDialog(props: Props) {
 
   const [local, base_props] = splitProps(props, ['sheet', 'auto-start']);
   const [running, setRunning] = createSignal(false);
-  const [open, setOpen] = base_props.bind;
   const [progress, setProgress] = createSignal(0);
 
   // const [screenUpdates, setScreenUpdates] = createSignal(true);
@@ -52,7 +51,7 @@ export function RunSimulationDialog(props: Props) {
 
   let subscription = 0;
 
-  createEffect(on(open, value => {
+  createEffect(on(props.open, value => {
     if (value) {
 
       setProgress(0);
@@ -62,7 +61,7 @@ export function RunSimulationDialog(props: Props) {
           switch (event.type) {
             case 'simulation-complete':
               setRunning(false);
-              setOpen(false);
+              props.setOpen(false);
               break;
 
             case 'simulation-aborted':

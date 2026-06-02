@@ -215,6 +215,7 @@ export default {
   "sparkline-dialog.title": "Insert sparkline",
   "sparkline-dialog.parameters.target.title": "Target cell",
   "sparkline-dialog.parameters.target.overwrite-warning": "Data in the target range will be overwritten",
+  "sparkline-dialog.parameters.target.merge-warning": "The selected cells will be merged for the sparkline",
   "sparkline-dialog.parameters.source.title": "Source data range",
   "sparkline-dialog.info": "Use cell foreground and background colors to style the sparkline",
 
