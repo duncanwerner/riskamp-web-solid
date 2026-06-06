@@ -109,6 +109,16 @@ export function NotesSidebar(props: SidebarProps) {
     }
   }
 
+  function UpdateNotes(event: Event) {
+    const sheet = props.sheet();
+    if (sheet && event.target instanceof HTMLTextAreaElement) {
+      const note = event.target.value || '';
+      const user_data = {...((sheet.user_data || {}) as any), note }
+      sheet.user_data = user_data;
+      setNotes(note);
+    }
+  }
+
   //
   // FIXME: instead of saving separate scroll positions, might
   // be interesting to try and sync position in the two renderings.
@@ -136,12 +146,15 @@ export function NotesSidebar(props: SidebarProps) {
                onclick={e => { if (e.currentTarget.checked) { setSessionData('notes', 'tab', 1)} }}
                checked={sessionData.notes?.tab === 1} />
         <textarea ref={textarea}
+                  onchange={e => UpdateNotes(e)}
                   onscroll={e => SaveScrollPosition(e, 'edit')}>{notes()}</textarea>
       </div>
     </div>
+    {/*
     <div class={style.controls}>
       controls {sessionData.notes?.view_scroll}, {sessionData.notes?.edit_scroll}
     </div>
+    */}
   </div>;
 }
 

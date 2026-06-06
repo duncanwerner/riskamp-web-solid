@@ -50,7 +50,7 @@ export const toolbar_config: ToolbarConfig = {
         'separator',
         'ai',
         'quick-view',
-        'quick-view-correlation',
+        // 'quick-view-correlation',
         'separator',
         'forecast',
       )

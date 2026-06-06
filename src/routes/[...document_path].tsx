@@ -1,8 +1,8 @@
 
 import { Title } from "@solidjs/meta";
 import { useParams } from "@solidjs/router";
-import { Spreadsheet } from '~/components/spreadsheet';
-import { createEffect, createSignal, on, onMount } from 'solid-js';
+import { Spreadsheet } from '~/components/spreadsheet/spreadsheet';
+import { createEffect, createSignal, on, onMount, untrack } from 'solid-js';
 import { Splitter } from '~/components/splitter/splitter';
 import * as auth from '~/lib/auth';
 import { spinner } from '~/components/spinner/spinner-control';
@@ -13,7 +13,7 @@ import { ToolbarCommand, ToolbarCommandKey } from '~/components/toolbar/toolbar-
 import { TestDialog } from '~/components/dialogs/test-dialog/test-dialog';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Sidebar } from '~/components/sidebar/sidebar-main';
-import { OpenExternal } from '~/lib/navigate';
+import { goto, OpenExternal } from '~/lib/navigate';
 
 import { RunSimulationDialog } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
 import { SparklineDialog, SparklineData } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
@@ -28,8 +28,12 @@ import { Area, IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 import { InsertSparkline, sparkline_props } from '~/components/dialogs/sparkline-dialog/sparkline';
 import { TrendForecastingDialog } from '~/components/dialogs/trend-forecasting/trend-forecasting-dialog';
 import { RunTrendForecast, trend_forecast_props } from '~/components/dialogs/trend-forecasting/trend-forecasting';
-import { BorderConstants } from '@trebco/treb';
+import { BorderConstants, EmbeddedSheetEvent } from '@trebco/treb';
 import { sessionData, setSessionData } from '~/lib/app-data';
+
+import * as cache from '~/docs/local-cache';
+import * as documents2 from '~/docs/documents2';
+import { IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
 
 function Spin() {
   spinner.show();
@@ -39,6 +43,8 @@ function Spin() {
 }
 
 export default function Page() {
+
+  const params = useParams() as { document_path: string|undefined };
 
   const [split, setSplit] = createSignal(100);
   const OpenSignal = createSignal(false);
@@ -50,6 +56,14 @@ export default function Page() {
   const [auto, setAuto] = createSignal(false);
   const [additionalCells, setAdditionalCells] = createSignal<string[]>([]);
 
+  /**
+   * listen for path changes, and (try to) load. we'll handle the 
+   * intiial path when we create the spreadsheet, so this is deferred.
+   */
+  createEffect(on(() => params.document_path, value => {
+    TryLoadPath(getSheet(), params.document_path);
+  }, { defer: true }));
+
   function ToggleStyle(sheet: SpreadsheetType, name: BooleanKeys<CellStyle>) {
     let value = false;
     if (sheet.selection_state?.style) {
@@ -59,7 +73,11 @@ export default function Page() {
     sheet.Focus();
   }
 
-  function NewDocument() {
+  async function NewDocument() {
+
+    if (params.document_path) {
+      goto('/');
+    }
 
     // TOOD: path
 
@@ -298,6 +316,7 @@ export default function Page() {
       case 'quick-view':
       case 'quick-view-correlation':
       case 'notes':
+      case 'fit-data':  
       case 'simulation-settings':
         if (active_sidebar() === command.key) {
           setSidebar(undefined);
@@ -305,6 +324,14 @@ export default function Page() {
         else {
           setSidebar(command.key);
         }
+        break;
+
+      case 'revert':
+        RevertDocument(sheet, params.document_path);
+        break;
+
+      case 'walkthrough':
+        goto(`/@riskamp/riskamp-walkthrough`);
         break;
 
       default:
@@ -321,12 +348,45 @@ export default function Page() {
   }
 
   /** 
-   * hijack the dialog in an effect. we're relying on the fact
-   * that the spreadsheet is only ever set once. 
+   * effect on spreadsheet create. set up.
    */
   createEffect(on(getSheet, sheet => {
     if (sheet) {
       HijackDialog(sheet);
+      TryLoadPath(sheet as SpreadsheetType, params.document_path || '');
+
+      sheet.Subscribe((event: EmbeddedSheetEvent) => {
+        switch (event.type) {
+          case 'selection':
+          case 'annotation-selection':
+          case 'focus-view':
+          case 'load':
+          case 'reset':
+          case 'view-change':
+          case 'document-change':
+            {
+              const cache_path = params.document_path || '';
+              // const cache_path = page_pathname + (historical_version ? `//${historical_version}` : '');
+
+              if (IsValidPath(cache_path)) {
+                cache.Set(cache_path, {
+                  data: sheet.SerializeDocument({
+                    preserve_simulation_data: true,
+                  }),
+                  cached: new Date().getTime(),
+                  // canonical_version: version || 0,
+                  // historical_version,
+                });
+              }
+
+            }
+            break;
+
+          // default:
+          //  console.info("unhandled", event.type);
+          
+        }
+      });
     }
   }));
 
@@ -376,7 +436,9 @@ export default function Page() {
       <div>
         <Splitter split={split} setSplit={setSplit} min={40} splitter-width={16} threshold={90}>
           <div data-left>
-            <Spreadsheet fill bind={[getSheet, setSheet]} function-handler={() => InsertFunction()}/>
+            <Spreadsheet fill 
+                         setSheet={setSheet} 
+                         function-handler={() => InsertFunction()}/>
           </div>
           <div data-right>
             <Sidebar bind={[sidebar, setSidebar]} 

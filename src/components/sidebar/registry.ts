@@ -4,6 +4,7 @@ import './ai-sidebar/ai-sidebar';
 import './search-sidebar/search-sidebar';
 import './quickview-sidebar/quickview-sidebar';
 import './notes-sidebar/notes-sidebar';
+import './fit-data-sidebar/fit-data-sidebar';
 import { type Component } from 'solid-js';
 import { SidebarProps } from './sidebar-main';
 

@@ -1,14 +1,17 @@
 
-import { onMount, createSignal, Signal } from "solid-js";
+import { onMount, createSignal, Signal, Accessor, Setter } from "solid-js";
 import { type EmbeddedSpreadsheet, type MCEmbeddedSpreadsheetOptions, RiskAMPWeb } from 'riskamp-web';
 import { type SpreadsheetType } from '~/lib/spreadsheet-type';
 
 interface Props {
   fill?: boolean;
-  bind?: Signal<SpreadsheetType|undefined>;
+
+  /** setter */
+  setSheet: Setter<SpreadsheetType|undefined>;
 
   /** callback for the insert function button */
   'function-handler'?: () => void;
+
 }
 
 export function Spreadsheet(props: Props) {
@@ -31,22 +34,20 @@ export function Spreadsheet(props: Props) {
         resizable: false,
         persist_scale: true,
         insert_function_button: true,
-        local_storage: true, // FIXME
+        local_storage: false, // true, // FIXME
         toolbar: false,
         collapsed: true,
         complex: 'on',
         lhs: true,
         lv: true,
+        toll_initial_load: true,
       };
 
       sheet = RiskAMPWeb.CreateSpreadsheet(options);
       sheet.EnsureChartsLib();
 
       sheet.ready.then(() => {
-        if (props.bind) {
-          const [ _, set ] = props.bind;
-          set(sheet as SpreadsheetType);
-        }
+        props.setSheet(sheet as SpreadsheetType);
       });
 
       (self as any).sheet = sheet; // DEV
