@@ -2,10 +2,22 @@ import { createStore, reconcile } from 'solid-js/store';
 import { createEffect, on } from 'solid-js';
 import { type Model } from 'treb-llm-support';
 
+/**
+ * FIXME: we should change how this works, make it deeper 
+ * and perhaps switch to a mutable? also we could be lazier
+ * about the specific types
+ */
 interface SessionData {
   active_tab: number;
   last_split: number;
   llm_tab_split: number;
+  
+  // notes_tab: number;
+  notes?: {
+    tab?: number;
+    view_scroll?: number;
+    edit_scroll?: number;
+  }
 }
 
 export interface PersistentData {

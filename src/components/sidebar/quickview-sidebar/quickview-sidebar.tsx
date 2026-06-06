@@ -266,6 +266,14 @@ function RedrawInternal() {
 
   /////////
 
+  function KeyDown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+      event.preventDefault();
+      props.sheet()?.Focus();
+    }
+  }
+
   function FocusIn(event: FocusEvent) {
     const address = parameter_element?.textContent || '';
     const sheet = props.sheet();
@@ -342,6 +350,7 @@ function RedrawInternal() {
               contenteditable="true"
               onfocusout={FocusOut}
               onfocusin={FocusIn}
+              onkeydown={KeyDown}
               oninput={e => TollRedraw()}
               onchange={e => TollRedraw()}
               ref={parameter_element}>{initial_value}</div>
@@ -428,8 +437,8 @@ function RedrawInternal() {
                   </Match>
                   <Match when={true}>
                     <div class={style.row}>
-                      <div>{t((row as BoxStatsRow).label)}</div>
-                      <div>{(row as BoxStatsRow).value}</div>
+                      <div class={style.label}>{t((row as BoxStatsRow).label)}</div>
+                      <div class={style.value}>{(row as BoxStatsRow).value}</div>
                     </div>
                   </Match>
                 </Switch>

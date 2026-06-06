@@ -78,7 +78,7 @@ export function Sidebar(props: SidebarProps) {
   const show_settings = !(persistentData.llm_model && persistentData.llm_api_keys[persistentData.llm_model.provider.name || '']);
   const [tab, setTab] = createSignal(show_settings ? 1 : 0);
 
-  return <>
+  return <div class={style.layout}>
     <div classList={{
       "tab-container": true,
       "height-100": true,
@@ -176,7 +176,7 @@ export function Sidebar(props: SidebarProps) {
       </div>
 
     </div>
-  </>;
+    </div>;
 }
 
 Register('ai', Sidebar);

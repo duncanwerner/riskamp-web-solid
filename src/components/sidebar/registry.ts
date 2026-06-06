@@ -3,6 +3,7 @@ import type { ToolbarCommandKey } from '../toolbar/toolbar-commands';
 import './ai-sidebar/ai-sidebar';
 import './search-sidebar/search-sidebar';
 import './quickview-sidebar/quickview-sidebar';
+import './notes-sidebar/notes-sidebar';
 import { type Component } from 'solid-js';
 import { SidebarProps } from './sidebar-main';
 
