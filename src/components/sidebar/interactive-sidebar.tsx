@@ -26,7 +26,7 @@ export function InteractiveSidebar(props: ParentProps<Props>) {
   onCleanup(() => {
     if (initialized) {
       console.info("cleaning up (panel)");
-      props.sheet?.ExternalEditor(); // flush
+      props.sheet()?.ExternalEditor(); // flush
       initialized = false;
     }
   });
@@ -36,7 +36,7 @@ export function InteractiveSidebar(props: ParentProps<Props>) {
       // console.info("WIRE UP");
       if (!initialized && root_node && props.sheet) {
         initialized = true;
-        Init(root_node, props.sheet, true, /* update */);
+        Init(root_node, props.sheet(), true, /* update */);
       }
     }
     HandleFocusIn(event);
@@ -46,7 +46,7 @@ export function InteractiveSidebar(props: ParentProps<Props>) {
     if (initialized) {
       if (!(event.relatedTarget instanceof HTMLElement) ||  
           !event.relatedTarget.hasAttribute('data-selection-target')) {
-        props.sheet?.ExternalEditor(); // flush
+        props.sheet()?.ExternalEditor(); // flush
 
         // let's scrub as well
         if (root_node) {
@@ -67,7 +67,7 @@ export function InteractiveSidebar(props: ParentProps<Props>) {
   return <>
       <div class="display-contents" 
           ref={root_node}
-          oninput={e => HandleInput(e, e.currentTarget, props.sheet, /* props.update */)} 
+          oninput={e => HandleInput(e, e.currentTarget, props.sheet(), /* props.update */)} 
           onfocusin={LocalFocusIn} 
           onfocusout={LocalFocusOut}
           onkeydown={e => HandleKeyDown(e, e.currentTarget)}>

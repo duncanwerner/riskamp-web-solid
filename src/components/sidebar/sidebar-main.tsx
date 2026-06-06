@@ -9,7 +9,7 @@ import { Accessor, Signal, type Component } from 'solid-js';
 
 import { registry } from './registry';
 import type { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { ToolbarCommands, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
+import { ToolbarCommand, ToolbarCommands, type ToolbarCommandKey } from '../toolbar/toolbar-commands';
 
 import style from './sidebar.module.css';
 import { bootstrap_icons } from 's5-icon-lib';
@@ -17,7 +17,8 @@ import { t } from '~/i18n/i18n';
 
 export interface SidebarProps {
   bind: Signal<string|undefined>;
-  sheet?: SpreadsheetType;
+  sheet: () => SpreadsheetType|undefined;
+  oncommand: (command: ToolbarCommand & { key: ToolbarCommandKey}) => void|Promise<void>;
   split: Accessor<number>;
 }
 

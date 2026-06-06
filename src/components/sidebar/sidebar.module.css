@@ -153,4 +153,62 @@ header {
 
   }
 
+  .no-data {
+    grid-row: 2/3;
+    grid-column: 1/-1;
+    z-index: 99;
+    display: none;
+    padding: 1em 1em;
+
+    p {
+      margin-bottom: 0;
+      margin-top: 1em;
+      font-size: 16px;
+    }
+
+    p:last-of-type {
+      margin-bottom: 1em;
+    }
+
+    button {
+      /* border: 1px solid color-mix(in srgb, currentColor 30%, transparent); */
+      border: 1px solid transparent;
+      border-radius: var(--toolbar-control-border-radius);
+      height: var(--toolbar-control-size);
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      font-size: 16px;
+      font-family: inherit;
+      gap: .5em;
+      line-height: 0;
+
+      &:not([disabled]):hover {
+        background: var(--toolbar-control-hover-background);
+        color: var(--toolbar-control-hover-color);
+        border-color: var(--toolbar-border-color);
+      }
+
+      &.active {
+        background: var(--toolbar-control-active-background);
+        color: var(--toolbar-accent-color);
+        border-color: var(--toolbar-accent-color);
+      }
+
+      &.active:not([disabled]):hover {
+        border-color: var(--toolbar-accent-color);
+      }
+
+    }
+
+    &.visible {
+      display: block;
+    }
+
+  }
+
 }

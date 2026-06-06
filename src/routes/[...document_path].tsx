@@ -48,6 +48,7 @@ export default function Page() {
 
   const RunSimulationSignal = createSignal(false);
   const [auto, setAuto] = createSignal(false);
+  const [additionalCells, setAdditionalCells] = createSignal<string[]>([]);
 
   function ToggleStyle(sheet: SpreadsheetType, name: BooleanKeys<CellStyle>) {
     let value = false;
@@ -127,6 +128,14 @@ export default function Page() {
 
       case 'run-simulation':
       case 'run-simulation-again':
+
+        if (Array.isArray(command.additional_data)) {
+          setAdditionalCells([...command.additional_data as string[]]);
+        }
+        else {
+          setAdditionalCells([]);
+        }
+
         setAuto(command.key === 'run-simulation-again');
         RunSimulationSignal[1](true);
         break;
@@ -370,7 +379,10 @@ export default function Page() {
             <Spreadsheet fill bind={[getSheet, setSheet]} function-handler={() => InsertFunction()}/>
           </div>
           <div data-right>
-            <Sidebar bind={[sidebar, setSidebar]} sheet={getSheet()} split={split} ></Sidebar>
+            <Sidebar bind={[sidebar, setSidebar]} 
+                     sheet={getSheet} 
+                     oncommand={HandleCommand} 
+                     split={split} ></Sidebar>
           </div>
         </Splitter>
       </div>  
@@ -381,6 +393,7 @@ export default function Page() {
       <RunSimulationDialog open={RunSimulationSignal[0]} 
                            setOpen={RunSimulationSignal[1]}
                            auto-start={auto()}
+                           additional-cells={additionalCells}
                            sheet={getSheet()} />
 
 

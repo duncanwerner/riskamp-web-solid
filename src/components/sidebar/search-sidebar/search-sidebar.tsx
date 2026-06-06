@@ -100,7 +100,7 @@ export function Sidebar(props: SidebarProps) {
   function SendInitMessage() {
     if (props.sheet) {
       console.info("sending init");
-      const data = props.sheet.SerializeDocument({ rendered_values: true, preserve_simulation_data: false });
+      const data = props.sheet()?.SerializeDocument({ rendered_values: true, preserve_simulation_data: false });
       worker?.postMessage({
         type: 'init',
         data,
@@ -110,22 +110,23 @@ export function Sidebar(props: SidebarProps) {
 
   onMount(() => {
     queueMicrotask(() => search?.focus());
-    if (props.sheet) {
-      setActiveSheet(props.sheet.grid.active_sheet.id);
+    const sheet = props.sheet();
+    if (sheet) {
+      setActiveSheet(sheet.grid.active_sheet.id);
       SendInitMessage();
-      subscription = props.sheet.Subscribe((event: EmbeddedSheetEvent) => {
+      subscription = sheet.Subscribe((event: EmbeddedSheetEvent) => {
         switch (event.type) {
           case 'document-change':
           case 'language-change':
           case 'load':
           case 'reset':
-            setActiveSheet(props.sheet?.grid.active_sheet.id || 0);
+            setActiveSheet(sheet.grid.active_sheet.id || 0);
             SendInitMessage();
             Search();
             break;
           
           case 'selection':
-            setActiveSheet(props.sheet?.grid.active_sheet.id || 0);
+            setActiveSheet(sheet.grid.active_sheet.id || 0);
             break;
         }
       });
@@ -134,7 +135,7 @@ export function Sidebar(props: SidebarProps) {
 
   onCleanup(() => {
     if (subscription) {
-      props.sheet?.Cancel(subscription);
+      props.sheet()?.Cancel(subscription);
     }
     if (worker) {
       worker.onmessage = null;
@@ -145,9 +146,10 @@ export function Sidebar(props: SidebarProps) {
     event.stopPropagation();
     event.preventDefault();
 
-    if (props.sheet) {
-      props.sheet.Select(result.address);
-      props.sheet.ScrollIntoView(result.address, true);
+    const sheet = props.sheet();
+    if (sheet) {
+      sheet.Select(result.address);
+      sheet.ScrollIntoView(result.address, true);
     }
   }
 

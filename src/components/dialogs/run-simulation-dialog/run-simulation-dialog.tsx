@@ -1,17 +1,20 @@
 
 import { Dialog, type Props as DialogProps } from '~/components/dialog-base/dialog';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
-import { createEffect, createSignal, on, splitProps } from 'solid-js';
+import { Accessor, createEffect, createSignal, on, splitProps } from 'solid-js';
 import { t } from '~/i18n/i18n';
 import style from './run-simulation-dialog.module.css';
 import { EmbeddedSheetEvent, MCEmbeddedSheetEvent } from 'riskamp-web';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 import { sessionData, persistentData, setPersistentData } from '~/lib/app-data';
 import { produce } from 'solid-js/store';
+import { ICellAddress } from '@trebco/treb';
+import { IsArea, IsCellAddress } from '@trebco/treb/treb-base-types';
 
 interface Props extends DialogProps<boolean> {
   sheet?: SpreadsheetType;
   'auto-start'?: boolean;
+  'additional-cells': Accessor<string[]>;
 }
 
 export function RunSimulationDialog(props: Props) {
@@ -40,11 +43,26 @@ export function RunSimulationDialog(props: Props) {
 
   function Start() {
     if (local.sheet) {
+
+      console.info("AC", props['additional-cells']());
+
+      const additional_cells: ICellAddress[] = [];
+      for (const cell of props['additional-cells']?.() || []) {
+        const resolved = local.sheet.Resolve(cell);
+        if (IsCellAddress(resolved)) {
+          additional_cells.push(resolved);
+        }
+        else if (IsArea(resolved)) {
+          additional_cells.push(resolved.start);
+        }
+      }
+
       setRunning(true);
       local.sheet.RunSimulation(persistentData.trials, {
         abort_on_dialog_close: false,
         // TODO lhs
         stepped: persistentData.stepped ? 25 : false,
+        additional_cells,
       });
     }
   }

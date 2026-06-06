@@ -25,6 +25,8 @@ import * as ChartUtils from '@trebco/treb/treb-charts/src/chart-utils';
 import { NumberFormatCache } from '@trebco/treb/treb-format';
 
 import './quickview-charts.css';
+import { ToolbarCommands } from '~/components/toolbar/toolbar-commands';
+import { MCEmbeddedSheetEvent } from 'riskamp-web';
 
 function Variance(data: number[], sample = false) {
   const len = data.length;
@@ -105,8 +107,9 @@ export function Sidebar(props: SidebarProps) {
   }
 
   let parameter_element: HTMLDivElement|undefined;
-  let initial_value = props.sheet?.GetSelection(true) || '';
+  let initial_value = props.sheet()?.GetSelection(true) || '';
   let chart_containers: HTMLDivElement[] = [];
+  let subscription = 0;
 
   onMount(() => {
     requestAnimationFrame(() => {
@@ -117,18 +120,33 @@ export function Sidebar(props: SidebarProps) {
     });
 
     window.addEventListener('resize', Resize);
+    subscription = props.sheet()?.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
+      switch (event.type) {
+        case 'simulation-progress':
+        case 'simulation-complete':
+          RedrawInternal();
+          break;
+      }
+    }) || 0;
+
 
   });
 
   onCleanup(() => {
     window.removeEventListener('resize', Resize);
+    if (subscription) {
+      props.sheet()?.Cancel(subscription);
+    }
   });
 
   /////////
 
   let number_format = 'General';
   let number_format_general = false;
-  let no_data = false;
+
+  // let no_data = false;
+
+  const [noData, setNoData] = createSignal(false); 
 
   interface BoxStatsRow {
     label: keyof I18N;
@@ -139,7 +157,7 @@ export function Sidebar(props: SidebarProps) {
   
 function RedrawInternal() {
 
-  const sheet = props.sheet;
+  const sheet = props.sheet();
   
   const selected_cell = parameter_element?.textContent || '';
 
@@ -165,7 +183,7 @@ function RedrawInternal() {
   // the cell changes or the simulation changes. _redraw_ doesn't need
   // to recalculate stats.
 
-  no_data = true;
+  setNoData(true);
   // cell_empty = true;
   // box_stats_table = [];
   setBoxStatsTable([]);
@@ -184,7 +202,7 @@ function RedrawInternal() {
 
   }
 
-  no_data = false;
+  setNoData(false);
   // cell_empty = false;
 
   const sorted = Array.from(data);
@@ -220,7 +238,7 @@ function RedrawInternal() {
 
     case 0:
       {
-        console.info(persistentData.quickview_bin_algorithm || 'auto');
+        // console.info(persistentData.quickview_bin_algorithm || 'auto');
         const histogram_data = sheet.Evaluate(`=MC.Histogram(${selected_cell},,,"${persistentData.quickview_bin_algorithm || 'auto'}")`, { argument_separator: ','});
 
         if (Array.isArray(histogram_data)) {
@@ -250,16 +268,17 @@ function RedrawInternal() {
 
   function FocusIn(event: FocusEvent) {
     const address = parameter_element?.textContent || '';
-    if (address && props.sheet) {
-      let resolved = props.sheet.Resolve(address);
+    const sheet = props.sheet();
+    if (address && sheet) {
+      let resolved = sheet.Resolve(address);
       if (IsArea(resolved)) {
         resolved = resolved.start;
       }
       if (IsCellAddress(resolved)) {
-        if (resolved.sheet_id && resolved.sheet_id !== props.sheet.grid.active_sheet.id) {
-          props.sheet.grid.ActivateSheetID(resolved.sheet_id);
+        if (resolved.sheet_id && resolved.sheet_id !== sheet.grid.active_sheet.id) {
+          sheet.grid.ActivateSheetID(resolved.sheet_id);
         }
-        props.sheet.ScrollIntoView(resolved, true);
+        sheet.ScrollIntoView(resolved, true);
       }
     }
   }
@@ -267,7 +286,7 @@ function RedrawInternal() {
   function FocusOut(Event: FocusEvent) {
     requestAnimationFrame(() => {
       if (parameter_element) {
-        props.sheet?.Select(parameter_element.textContent || '');
+        props.sheet()?.Select(parameter_element.textContent || '');
       }
     });
   }
@@ -296,6 +315,18 @@ function RedrawInternal() {
       () => persistentData.quickview_bin_algorithm ], values => {
         RedrawInternal();
   }));
+
+  function RunSimulation() {
+    
+    // props.sheet?.RunSimulation(1000);
+    props.oncommand({ 
+      ...ToolbarCommands['run-simulation-again'], 
+      key: 'run-simulation-again',
+      additional_data: [
+        parameter_element?.textContent || '',
+      ]
+    });
+  }
 
   return <InteractiveSidebar {...props}>
     <div classList={{
@@ -369,12 +400,23 @@ function RedrawInternal() {
                         value={persistentData.quickview_minmax}>
                   <option value="minmax">{t('quick-view-dialog.box-plot-whisker-type-minmax')}</option>
                   <option value="iqr">
-                    {props.sheet?.FormatNumber(1.5, '0.0')}x {t('quick-view-dialog.box-plot-whisker-type-interquartile-range')}
+                    {props.sheet()?.FormatNumber(1.5, '0.0')}x {t('quick-view-dialog.box-plot-whisker-type-interquartile-range')}
                   </option>
                 </select>
               </Match>
             </Switch>
           </div>
+
+          <div classList={{ [style.visible]: noData(), [style['no-data']]: true }}>
+            <div innerHTML={
+              t('quick-view-dialog.no-data').split(/\n/g).map(para => `<p>${para}</p>`).join('\n')
+            } />
+            <button onclick={() => RunSimulation()}>
+              <span innerHTML={ToolbarCommands['run-simulation'].icon} />
+              <span>{t(ToolbarCommands['run-simulation'].title)}</span>
+            </button>
+          </div>
+
         </div>
 
           <div class={style['box-stats-table']}>

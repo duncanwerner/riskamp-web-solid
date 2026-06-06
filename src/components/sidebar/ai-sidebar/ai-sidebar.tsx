@@ -104,7 +104,7 @@ export function Sidebar(props: SidebarProps) {
               [style.messages]: true,
             }}>
               
-              <ChatMessages sheet={props.sheet}/>
+              <ChatMessages sheet={props.sheet()}/>
 
             </div>
             <div data-bottom class={style.controls}>
