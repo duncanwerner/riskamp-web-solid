@@ -156,7 +156,77 @@ header {
 }
 
 .fit-data-layout {
+
   padding: 1em .5em;
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: hidden;
+  position: relative;
+
+  & > * {
+    min-height: fit-content;
+  }
+
+  & > .chart {
+    min-height: 0;
+    flex-grow: 1;
+  }
+
+  hr {
+    opacity: 30%;
+    width: 100%;
+  }
+
+  h1 {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 16px;
+    gap: 1em;
+  }
+
+  p {
+    padding: 0;
+    margin: 0;
+  }
+
+  .boxed {
+    border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    .row {
+      display: contents;
+    }
+
+  }
+
+  .graph-container {
+    line-height: 0;
+    svg {
+      line-height: 0;
+    }
+    padding: 0;
+    margin: 0;
+    
+  }
+
+  .fit-data {
+    stroke: blue;
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .fit-theoretical {
+    stroke: orange;
+    stroke-width: 2;
+    fill: none;
+  }
 
 }
 
