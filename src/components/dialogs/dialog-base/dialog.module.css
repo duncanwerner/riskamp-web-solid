@@ -18,6 +18,38 @@ dialog {
   &::backdrop {
     display: none;
   }
+
+  .mouse-mask {
+
+    position: fixed;
+    z-index: 999;
+    top: 0px;
+    left: 0px;
+
+    width: 100vw;
+    height: 100vh;
+    width: 100dvw;
+    height: 100dvh;
+
+    background: transparent;
+
+    display: none; /* hidden by default */
+
+    &.move {
+      cursor: move;
+    }
+
+    &.resize {
+      cursor: nwse-resize;
+    }
+
+    &.visible {
+      display: block;
+      pointer-events: all;
+    }
+
+  }
+
 }
 
 .frame {
@@ -35,9 +67,11 @@ dialog {
   box-shadow: var(--dialog-box-shadow, 1px 10px 18px 1px rgba(0,0,0,0.124));
   outline: none;
 
-  transform: translate(-50%, -50%);
+  /*
+  transform: translate(-50%, -50%) translateZ(0);
   left: 50%;
   top: 45%;
+  */
 
   grid-template-columns: 100%;
   grid-template-rows: auto 1fr auto;
@@ -130,34 +164,5 @@ dialog {
     flex-direction: row;
   }
 
-  .mouse-mask {
-
-    display: none;
-
-    position: fixed;
-    z-index: 999;
-    top: 0px;
-    left: 0px;
-
-    width: 100vw;
-    height: 100vh;
-    width: 100dvw;
-    height: 100dvh;
-
-    background: transparent;
-
-    &.move {
-      cursor: move;
-    }
-
-    &.resize {
-      cursor: nwse-resize;
-    }
-
-    &.visible {
-      display: block;
-    }
-
-  }
 
 }

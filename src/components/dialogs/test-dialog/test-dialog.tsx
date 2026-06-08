@@ -1,5 +1,5 @@
 
-import { InteractiveDialog, type Props as InteractiveDialogProps } from '~/components/interactive-dialog/interactive-dialog';
+import { InteractiveDialog, type Props as InteractiveDialogProps } from '~/components/dialogs/interactive-dialog/interactive-dialog';
 import style from './test-dialog.module.css';
 
 export function TestDialog(props: InteractiveDialogProps) {

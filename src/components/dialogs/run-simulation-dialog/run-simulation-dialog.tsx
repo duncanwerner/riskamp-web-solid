@@ -1,5 +1,5 @@
 
-import { Dialog, type Props as DialogProps } from '~/components/dialog-base/dialog';
+import { Dialog, type Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { Accessor, createEffect, createSignal, on, splitProps } from 'solid-js';
 import { t } from '~/i18n/i18n';

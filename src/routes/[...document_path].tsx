@@ -17,6 +17,7 @@ import { goto, OpenExternal } from '~/lib/navigate';
 
 import { RunSimulationDialog, type Options as RunSimulationOptions } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
 import { SparklineDialog, SparklineData } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
+import { InsertFunctionDialog } from '~/components/dialogs/insert-function-dialog/insert-function-dilalog';
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
@@ -34,6 +35,7 @@ import { sessionData, setSessionData } from '~/lib/app-data';
 import * as cache from '~/docs/local-cache';
 import * as documents2 from '~/docs/documents2';
 import { IsValidPath, RevertDocument, TryLoadPath } from '~/components/spreadsheet/manager';
+import { CheckFunction, CheckFunctionData, RestoreEditor } from '~/components/dialogs/insert-function-dialog/check-function';
 
 function Spin() {
   spinner.show();
@@ -54,6 +56,8 @@ export default function Page() {
 
   const [runSimulationOpen, setRunSimulationOpen] = createSignal(false);
   const [runSimulationOptions, setRunSimulationOptions] = createSignal<Partial<RunSimulationOptions>>({});
+  const [insertFunctionDialogOpen, setInsertFunctionDialogOpen] = createSignal(false);
+  const [insertFunctionData, setInsertFunctionData] = createSignal<CheckFunctionData|undefined>(undefined);
 
   // const RunSimulationSignal = createSignal(false);
   // const [auto, setAuto] = createSignal(false);
@@ -346,8 +350,22 @@ export default function Page() {
 
   }
 
-  function InsertFunction() {
-    OpenSignal[1](true);
+  async function InsertFunction() {
+
+    const sheet = getSheet();
+    if (sheet) {
+      const check = CheckFunction(sheet);
+      if (check.reject) {
+        RestoreEditor(sheet, check);
+      }
+      else {
+        setInsertFunctionData(check);
+        setInsertFunctionDialogOpen(true);
+        await AwaitSignal(insertFunctionDialogOpen);
+      }
+    }
+
+    getSheet()?.Focus();
   }
 
   /** 
@@ -465,6 +483,13 @@ export default function Page() {
 
       <SparklineDialog {...sparkline_props} sheet={getSheet} />
       <TrendForecastingDialog {...trend_forecast_props} sheet={getSheet} />
+
+      <InsertFunctionDialog sheet={getSheet}
+                            open={insertFunctionDialogOpen} 
+                            setOpen={setInsertFunctionDialogOpen} 
+                            data={insertFunctionData}
+                            setData={setInsertFunctionData}
+                            />
 
       <RunSimulationDialog open={runSimulationOpen} 
                            setOpen={setRunSimulationOpen}

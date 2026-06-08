@@ -3,7 +3,7 @@
 import { CreateParameters, InteractiveDialog, 
          Parameter,
          type ParameterType as BaseParameterType,
-         type Props as InteractiveDialogProps } from '~/components/interactive-dialog/interactive-dialog';
+         type Props as InteractiveDialogProps } from '~/components/dialogs/interactive-dialog/interactive-dialog';
 import style from './sparkline-dialog.module.css';
 import { t } from '~/i18n/i18n';
 import { createEffect, createSignal, Match, on, Show, Switch, type Signal } from 'solid-js';

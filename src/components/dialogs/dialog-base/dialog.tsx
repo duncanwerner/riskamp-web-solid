@@ -240,7 +240,9 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
               onmousedown={StartResize} />
           </Show>
 
-          <div classList={{
+        </div>
+
+        <div classList={{
             [style['mouse-mask']]: true,
             [style.visible]: !!dragging(),
             [style.move]: dragging() === 'move',
@@ -250,7 +252,6 @@ export function Dialog<T>(props: ParentProps<Props<T>>) {
           onmousemove={MouseMove}
           ref={mouse_mask} />
 
-        </div>
       </dialog>
 
     </>

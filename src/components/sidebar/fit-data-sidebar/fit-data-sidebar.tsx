@@ -107,7 +107,7 @@ export function Sidebar(props: SidebarProps) {
       return [];
     }
     const fr = sheet.Fit(data(), "Value");
-    console.info({data, fr});
+    // console.info({data, fr});
     return fr;
   });
 

@@ -1,6 +1,6 @@
 
 import { HandleInput, HandleFocusIn, HandleKeyDown, Init, UpdateNodes, UpdateDependencies } from '~/lib/interactive-components';
-import { Dialog, Props as DialogProps } from '~/components/dialog-base/dialog';
+import { Dialog, Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
 import { createContext, createEffect, on, ParentProps, type Signal, splitProps, Show, onMount, useContext, onCleanup, createSignal, createRenderEffect } from 'solid-js';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import type { DependencyList } from 'riskamp-web';

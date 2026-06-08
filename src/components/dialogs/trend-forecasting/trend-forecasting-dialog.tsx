@@ -2,7 +2,7 @@
 import { CreateParameters, InteractiveDialog, 
          Parameter,
          type ParameterType as BaseParameterType,
-         type Props as InteractiveDialogProps } from '~/components/interactive-dialog/interactive-dialog';
+         type Props as InteractiveDialogProps } from '~/components/dialogs/interactive-dialog/interactive-dialog';
 import style from './trend-forecasting-dialog.module.css';
 import { t } from '~/i18n/i18n';
 import { createEffect, createSignal, Match, on, onMount, Show, Switch, type Signal } from 'solid-js';
@@ -16,7 +16,7 @@ import { Chart } from '@trebco/treb/treb-charts';
 import { type ChartData } from '@trebco/treb/treb-charts/src/chart-types';
 import { Scale, type RangeScale } from '@trebco/treb/treb-utils';
 import { Heuristics } from '@trebco/treb/treb-data-model';
-import { Size } from '~/components/dialog-base/dialog';
+import type { Size } from '~/components/dialogs/dialog-base/dialog';
 
 import './chart.css';
 

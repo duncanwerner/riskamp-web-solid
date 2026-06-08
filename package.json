@@ -29,6 +29,7 @@
     "markdown-it": "^14.2.0",
     "markdown-it-link-attributes": "^4.0.1",
     "minisearch": "^7.2.0",
+    "raw-tools": "file:../raw-tools",
     "riskamp-web": "file:../RAW",
     "s5-icon-lib": "file:../s5/icons",
     "treb-llm-support": "file:../treb-llm-support",
