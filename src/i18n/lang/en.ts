@@ -279,7 +279,12 @@ export default {
   "sidebar.simulation_settings.random-sampling.explanatory-text": "The samping method will be saved with this spreadsheet.\nThe value you select here will also be used as the default for new spreadsheets.",
 
   "sidebar.simulation_settings.random-seed.section-header": "Random seed",
-  "sidebar.simulation_settings.random-seed.explanatory-text": "The random seed will be saved with this spreadsheet.",
+  "sidebar.simulation_settings.random-seed.explanatory-text": "The random seed will be saved with this spreadsheet.\nEnter a number to use a fixed seed, or enter 0 to use a random seed in every simulation.",
+
+  "sidebar.simulation_settings.random-seed.enter-seed-value": "Enter seed",
+  "sidebar.simulation_settings.random-seed.seed-value": "Seed value",
+  "sidebar.simulation_settings.random-seed.reset-seed-value": "Reset seed",
+  "sidebar.simulation_settings.random-seed.time-based-seed": "Use a time-based seed",
 
   "sidebar.simulation_settings.title": "Simulation settings",
   "sidebar.simulation_settings.latin-hypercube-sampling": "Latin hypercube sampling (LHS)",

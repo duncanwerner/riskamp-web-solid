@@ -430,3 +430,50 @@ header {
   }
 
 }
+
+.simulation-settings-layout {
+  padding: 1em .5em;
+
+  h1 {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 16px;
+    gap: 1em;
+    margin-bottom: .5em;
+  }
+
+  .table {
+
+    display: flex;
+    flex-direction: column;
+    gap: .5em;
+
+    label {
+      display: flex;
+      flex-direction: row;
+      gap: .5em;
+    }
+
+    margin-bottom: 2em;
+
+  }
+
+  .explainer {
+    p {
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+  }
+
+  .links {
+    margin-top: 1em;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 1em;
+    align-items: flex-start;
+  }
+
+}

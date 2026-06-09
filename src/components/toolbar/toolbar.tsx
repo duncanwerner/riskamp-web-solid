@@ -437,11 +437,11 @@ export function Toolbar(props: ParentProps<Props>) {
             <Match when={loggedIn()}>
               <DropMenu label={session().email || ''}>
               <menu>
-                <button class={style['menu-item']} onclick={event => goto('/account')}>
+                <button disabled class={style['menu-item']} onclick={event => goto('/account')}>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.account-page')}</span>
                 </button>
-                <button class={style['menu-item']} onclick={event => goto('/documents')}>
+                <button disabled class={style['menu-item']} onclick={event => goto('/documents')}>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.documents')}</span>
                 </button>
