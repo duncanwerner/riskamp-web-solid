@@ -314,7 +314,7 @@ export function InsertFunctionDialog(props: Props) {
       while (args.length && args[args.length - 1] === '') {
         args.splice(args.length - 1, 1);
       }
-      return `=${name}(${args.join(sheet.parser.argument_separator + ' ')})`;
+      return `${name}(${args.join(sheet.parser.argument_separator + ' ')})`;
     }
     return undefined;
   }
