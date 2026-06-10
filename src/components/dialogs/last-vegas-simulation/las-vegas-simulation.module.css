@@ -1,0 +1,14 @@
+
+
+.table {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  row-gap: .5em;
+  column-gap: 1em;
+  align-items: center;
+
+  .row {
+    display: contents;
+  }
+
+}

@@ -18,7 +18,7 @@ export default defineConfig({
     format: 'es',
   },
   plugins: [
-    solidStart(),
+    solidStart({ ssr: false }),
     nitro()
   ],
   assetsInclude: ['**/*.wasm'],

@@ -11,7 +11,7 @@ import { toolbar_config as base_toolbar_config } from './toolbar-config';
 import html from 'solid-js/html';
 import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl } from './toolbar-utils';
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
-import { sessionSignal, loggedInSignal } from '~/lib/auth';
+
 import { goto } from '~/lib/navigate';
 import { persistentData, sessionData, setSessionData } from '~/lib/app-data';
 import { createMutable, produce, unwrap } from 'solid-js/store';

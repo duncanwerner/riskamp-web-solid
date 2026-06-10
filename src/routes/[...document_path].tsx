@@ -18,6 +18,7 @@ import { goto, OpenExternal } from '~/lib/navigate';
 import { RunSimulationDialog, type Options as RunSimulationOptions } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
 import { SparklineDialog, SparklineData } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
 import { InsertFunctionDialog } from '~/components/dialogs/insert-function-dialog/insert-function-dilalog';
+import { Dialog as LasVegasDialog, props as las_vegas_props } from '~/components/dialogs/last-vegas-simulation/last-vegas-simulation';
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';
@@ -64,6 +65,14 @@ export default function Page() {
   // const [auto, setAuto] = createSignal(false);
   // const [additionalCells, setAdditionalCells] = createSignal<string[]>([]);
 
+  /**
+   * TEMP
+   */
+
+  onMount(() => {
+    (window as any).auth = auth;
+  });
+
 
   /**
    * listen for path changes, and (try to) load. we'll handle the 
@@ -96,6 +105,12 @@ export default function Page() {
 
   }
 
+  async function LasVegasSimulation() {
+    las_vegas_props.setOpen(true);
+    await AwaitSignal(las_vegas_props.open, value => !value);
+    getSheet()?.Focus();
+  }
+
   // FIXME: move this to a lib file, it doesn't need to clog up this file
   function HandleCommand(command: ToolbarCommand & { key: ToolbarCommandKey}) {
 
@@ -116,6 +131,10 @@ export default function Page() {
     }
 
     switch (command.key) {
+      case 'las-vegas-simulation':
+        LasVegasSimulation();
+        return;
+
       case 'new':
         NewDocument();
         break;
@@ -481,6 +500,7 @@ export default function Page() {
         </Splitter>
       </div>  
 
+      <LasVegasDialog {...las_vegas_props} sheet={getSheet} />
       <SparklineDialog {...sparkline_props} sheet={getSheet} />
       <TrendForecastingDialog {...trend_forecast_props} sheet={getSheet} />
 

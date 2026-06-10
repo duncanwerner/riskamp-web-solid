@@ -28,8 +28,6 @@
 
 import * as jose from 'jose';
 
-// import { goto } from '$app/navigation';
-// import { type Writable, writable } from 'svelte/store';
 import { createSignal  } from 'solid-js';
 import { goto } from '~/lib/navigate';
 
@@ -48,28 +46,14 @@ export interface Claims {
   id: string;
 }
 
-function init_fn() {
-  return false;
-}
-
-export const sessionSignal = createSignal<Partial<Claims>>({});
-export const loggedInSignal = createSignal<boolean>(false);
-
-const [_loggedIn, setLoggedIn] = loggedInSignal;
-const [_session, setSession] = sessionSignal;
-
-// export const session: Writable<Partial<Claims>> = writable({});
-// export const logged_in: Writable<boolean> = writable(false);
-
-export const enable_auth = true;
-
-/** token expiration, advisory only */
-export let token_expiration = 0;
-
-let _logged_in = false;
-
 let cache_: Cache|undefined;
 let cache_initialized = false;
+let refresh_token = 0;
+
+// export const [session, setSession] = createSignal<Partial<Claims>>(GetInitialSession());
+export const [session, setSession] = createSignal<Partial<Claims>>({});
+export const loggedIn = () => !!session().username;
+export const enable_auth = true;
 
 const EnsureCache = async () => {
   if (cache_initialized) {
@@ -80,7 +64,6 @@ const EnsureCache = async () => {
     cache_ = await caches.open(DOCUMENT_CACHE);
     const keys = await cache_.keys();
     for (const key of keys) {
-      // console.info("delete", key);
       await cache_.delete(key);
     }
     return cache_;
@@ -94,8 +77,9 @@ const Delay = (seconds = 1) => {
   });
 };
 
-export const IsLoggedIn = () => _logged_in;
-
+/**
+ * utility method (FIXME: move?)
+ */
 export const FormatTime = (seconds: number, precision = 2) => {
 
   let minutes = Math.floor(seconds/60);
@@ -112,145 +96,159 @@ export const FormatTime = (seconds: number, precision = 2) => {
   
 };
 
-let refresh = 0;
-
-const UpdateSessionData = (token: string) => {
-
-  // console.info("USD")
-
-  // eh... don't do this? we're flushing the list unecessarily if this is 
-  // called after a refresh. (referring to setting logged_in -> false).
-  //
-  // moving into the test so it will only be called on !refresh.
-
-  if (refresh) {
-    window.clearTimeout(refresh);
-    refresh = 0;
-  }
-  else {
-    _logged_in = false;
-    setLoggedIn(false);
- 
-  }
-
+/**
+ * breaking up the old "update session data" routine, which did a lot 
+ * of different things. all this one does is check valid/expired token.
+ * 
+ * the old method did two additional things:
+ * 
+ * (1) if token was expired, it set a refresh to try and log in again
+ *     based on the refresh cookie (using the side effect of an API call)
+ * 
+ * (2) if the token was valid, it sets a timeout to do a refresh _or_ 
+ *     log out at token expiration time. 
+ * 
+ * so those things should still happen in a calling method, but this 
+ * method will handle parsing/validating the token.
+ * 
+ * @param token 
+ * @returns 
+ */
+function SessionDataFromToken(token: string): { session: Partial<Claims>, expired?: boolean } {
   if (token) {
     try {
       const payload = jose.decodeJwt(token);
       const time = new Date().getTime() / 1000;
 
-      // console.info("exp", payload.exp, "time", time);
-
-      token_expiration = payload.exp || -1;
-
       if (payload.exp && payload.exp < time) {
-        
-        // console.info("token expired!");
-
-        requestAnimationFrame(() => {
-
-          // we're relying on side-effects of the access method
-          // to store updated credentials (if they are provided)
-
-          AccessResource('/api/status', {}).then((result) => {
-            // console.info("X");
-          });
-
-        });
+        return { session: {}, expired: true };
       }
-      else {
 
-        setSession(payload);
-        _logged_in = !!payload.username;
-        setLoggedIn(_logged_in);
+      return {session: payload};
 
-        // console.info("Logged in?", _logged_in)
 
-        if (payload.exp) {
-
-          token_expiration = payload.exp || -1;
-          const delta = ((payload.exp - time) + 5) * 1000;
-
-          // console.info("token valid for", FormatTime(payload.exp - time));
-          // console.info('setting refresh in', Math.ceil(delta), `(${Math.ceil(delta)/1000}s)`)
-
-          refresh = window.setTimeout(() => {
-
-            // console.info("REFRESH")
-
-            requestAnimationFrame(() => {
-              AccessResource('/api/status', {}).then((result) => {
-
-                // at this point if the stored token is not valid, we need 
-                // to log out. if the token was refreshed the method call
-                // would have stored the update.
-
-                // the standard process would call back to this method, not
-                // sure if we want to do that though. presume we've failed...
-              
-                let success = false;
-                try {
-
-                  const check_token = localStorage.getItem(AUTH_KEY) || '';
-                  if (check_token) {
-
-                    const payload = jose.decodeJwt(check_token);
-                    const time = new Date().getTime() / 1000;
-
-                    /*
-                    console.info({
-                      payload, 
-                      exp: new Date((payload.exp || 0) * 1000),
-                    })
-                    */
-
-                    // FIXME: should check ID? (...)
-
-                    if (payload.exp && payload.exp > time) {
-                      success = true;
-                    }
-
-                  }
-                }
-                catch (err) {
-                  // ...
-                }
-                
-                if (!success) {
-
-                  _logged_in = false;
-                  setLoggedIn(_logged_in);
-                  ClearTokens();
-                  goto('/');
-
-                }
-
-              });
-            });
-    
-          }, Math.ceil(delta));
-        }
-
-        return;
-      }
     }
     catch (err) {
       console.error(err);
     }
+  } 
+  return { session: {}}; 
+}
+
+/** 
+ * this method handles the "try re-auth on expiration" routine, which
+ * is just a deferred call to an API method
+ */
+function TryReauth() {
+
+  console.info("Try reauth");
+
+  requestAnimationFrame(() => {
+
+    // we're relying on side-effects of the access method
+    // to store updated credentials (if they are provided)
+
+    AccessResource('/api/status', {}).then((result) => {
+      // console.info("X");
+    });
+
+  });
+  
+}
+
+/**
+ * this method handles scheduling a session refresh. it should be 
+ * called when there's a valid session. upon expiration time, it will 
+ * try to refresh the session, and if that fails, log out.
+ */
+function ScheduleSessionUpdate(data: Partial<Claims>) {
+
+  const time = new Date().getTime() / 1000;
+
+  if (!data.exp) {
+    throw new Error('invalid session data');
   }
 
-  setSession({});
+  const delta = ((data.exp - time) + 5) * 1000;
 
-};
+  console.info("Schedule session update", FormatTime(delta/1000));
+
+  if (refresh_token) {
+    window.clearTimeout(refresh_token);
+  }
+
+  refresh_token = window.setTimeout(() => {
+    AccessResource('/api/status', {}).then((result) => {
+      let success = false;
+      try {
+
+        const check_token = localStorage.getItem(AUTH_KEY) || '';
+        if (check_token) {
+
+          const payload = jose.decodeJwt(check_token);
+          const time = new Date().getTime() / 1000;
+
+          if (payload.exp && payload.exp > time) {
+
+            // re-auth successful. set a new timeout.
+            ScheduleSessionUpdate(payload);
+            return;
+
+          }
+
+        }
+      }
+      catch {
+        // ...
+      }
+
+      // if we get here, then the re-auth failed, so ensure
+      // we're not pointing at a sensitive resource.
+
+      console.info("session update failed, logging out");
+
+      ClearTokens();
+      goto('/');
+
+    });
+  }, Math.ceil(delta));
+
+}
+
+export function GetInitialSession(): Partial<Claims> {
+  if (typeof localStorage !== 'undefined' && localStorage.getItem) {
+    const data = localStorage.getItem(AUTH_KEY) || '';
+    if (data) {
+      const parsed = SessionDataFromToken(data);
+      if (parsed.expired) {
+        TryReauth();
+      }
+      else if (parsed.session.username ) {
+        // requestAnimationFrame(() => {
+          ScheduleSessionUpdate(parsed.session);
+        // });
+        return parsed.session;
+      }
+    }
+  }
+  return {};
+}
 
 /**
  * this can't be inlined because it needs to run after reactivity
  * has "started" or whatever solid is doing
  */
 export function Init() {
+
+  console.info("OLD INIT METHOD");
+
+  /*
   if (typeof localStorage !== 'undefined' && localStorage.getItem) {
     const data = localStorage.getItem(AUTH_KEY) || '';
     UpdateSessionData(data);
-  };
+  }
+    */
+
 }
 
 /**
@@ -265,7 +263,7 @@ export const FlushCache = async (uri?: string) => {
       const result = await cache.delete( new Request(BACKEND + uri, { method: 'GET' }));
     }
     else {
-      console.info('flushing everything');
+      // console.info('flushing everything');
       const keys = await cache.keys();
       for (const key of keys) {
         await cache.delete(key);
@@ -363,10 +361,18 @@ export const AccessResource = async (
 };
 
 export const ClearTokens = () => {
-  UpdateSessionData('');
+  // UpdateSessionData('');
   localStorage.removeItem(AUTH_KEY); // cookie?
-  _logged_in = false;
-  setLoggedIn(_logged_in);
+
+  // clear session
+  setSession({});
+
+  // clear refresh, if it's set
+  if (refresh_token) {
+    window.clearTimeout(refresh_token);
+    refresh_token = 0;
+  }
+
 };
 
 export const Logout = async () => {
@@ -382,7 +388,7 @@ export const TestState = async () => {
   const response = await AccessResource('/api/test-state');
   if (response.ok) {
     const json = await response.json();
-    console.info({json});
+    // console.info({json});
   }
 };
 
@@ -520,8 +526,22 @@ export const Login = async (username: string, password: string): Promise<boolean
 
 };
 
-export const StoreToken = (jwt: string) => { // (json: { jwt: string, refresh: string }) => {
-  localStorage.setItem(AUTH_KEY, jwt); // cookie?
-  UpdateSessionData(jwt);
+export const StoreToken = (jwt: string) => {
+
+  // try to parse it
+  const parsed = SessionDataFromToken(jwt);
+  if (parsed.expired) {
+    TryReauth();
+  }
+  else if (parsed.session.username ) {
+
+    // store token in local storage
+    localStorage.setItem(AUTH_KEY, jwt);
+
+    setSession(parsed.session);
+    ScheduleSessionUpdate(parsed.session);
+  }
+
 };
+
 

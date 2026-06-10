@@ -11,7 +11,9 @@ import { toolbar_config as base_toolbar_config } from './toolbar-config';
 import html from 'solid-js/html';
 import { ButtonControl, Control, Icon as ToolbarIcon, TextButtonControl, CompositeMenuControl, MoreControl, ComboBoxControl, SplitButtonControl, ColorButtonControl } from './toolbar-utils';
 import { ToolbarCommand, ToolbarCommandKey } from './toolbar-commands';
-import { sessionSignal, loggedInSignal } from '~/lib/auth';
+// import { sessionSignal, loggedInSignal } from '~/lib/auth';
+import { session, loggedIn } from '~/lib/auth';
+
 import { goto } from '~/lib/navigate';
 import { persistentData, sessionData, setSessionData } from '~/lib/app-data';
 import { createMutable, produce, unwrap } from 'solid-js/store';
@@ -64,8 +66,8 @@ function RenderTextButton(control: TextButtonControl) {
 
 export function Toolbar(props: ParentProps<Props>) {
 
-  const [loggedIn] = loggedInSignal;
-  const [session] = sessionSignal;
+  // const [loggedIn] = loggedInSignal;
+  // const [session] = sessionSignal;
 
   const toolbar_config = createMutable(base_toolbar_config);
   
@@ -441,7 +443,7 @@ export function Toolbar(props: ParentProps<Props>) {
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.account-page')}</span>
                 </button>
-                <button disabled class={style['menu-item']} onclick={event => goto('/documents')}>
+                <button class={style['menu-item']} onclick={event => goto('/documents')}>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.documents')}</span>
                 </button>

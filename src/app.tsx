@@ -10,8 +10,6 @@ import '~/style/controls.css';
 import '~/style/utility.css';
 import '~/style/grid-table.css';
 
-import * as auth from '~/lib/auth';
-
 import { Spinner } from '~/components/spinner/spinner';
 import { useNavigate } from '@solidjs/router';
 import { setNavigator } from '~/lib/navigate';
@@ -24,7 +22,6 @@ function Root(props: RouteSectionProps) {
   setNavigator(useNavigate());
 
   onMount(() => {
-    auth.Init();
     InitAppData();
   });
 

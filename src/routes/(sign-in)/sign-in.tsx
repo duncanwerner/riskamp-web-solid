@@ -1,13 +1,12 @@
 import { Title } from "@solidjs/meta";
-import { sessionSignal, loggedInSignal } from '~/lib/auth';
 import * as auth from '~/lib/auth';
 
 import style from './sign-in.module.css';
 import { goto } from '~/lib/navigate';
+import { Show } from 'solid-js';
+import { Navigate } from '@solidjs/router';
 
-export default function About() {
-
-  const [loggedIn] = loggedInSignal;
+export default function SignIn() {
 
   const HandleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
@@ -27,17 +26,16 @@ export default function About() {
   };
 
   return (
-    <main>
-      <Title>Sign in</Title>
-      <form class={style.form} onsubmit={HandleSubmit}>
-        <input name="username" autocomplete='username' type="text" placeholder="username" />
-        <input name="password" autocomplete='current-password' type="password" />
-        <button type="submit">Sign in</button>
-      </form>
-
-      <button onclick={() => goto('/')}>Goto</button>
-
-    </main>
+    <Show when={!auth.loggedIn()} fallback={<Navigate href="/" />}>
+      <main>
+        <Title>Sign in</Title>
+        <form class={style.form} onsubmit={HandleSubmit}>
+          <input name="username" autocomplete='username' type="text" placeholder="username" />
+          <input name="password" autocomplete='current-password' type="password" />
+          <button type="submit">Sign in</button>
+        </form>
+      </main>
+    </Show>
   );
 }
 

@@ -1,7 +1,7 @@
 
 import { HandleInput, HandleFocusIn, HandleKeyDown, Init, UpdateNodes, UpdateDependencies } from '~/lib/interactive-components';
 import { Dialog, Props as DialogProps } from '~/components/dialogs/dialog-base/dialog';
-import { createContext, createEffect, on, ParentProps, type Signal, splitProps, Show, onMount, useContext, onCleanup, createSignal, createRenderEffect } from 'solid-js';
+import { createContext, createEffect, on, ParentProps, type Signal, splitProps, Show, onMount, useContext, onCleanup, createSignal, createRenderEffect, Match, Switch } from 'solid-js';
 import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import type { DependencyList } from 'riskamp-web';
 
@@ -61,18 +61,35 @@ type DialogContextType = {
  */
 const DialogContext = createContext<DialogContextType>({});
 
+export interface ParameterProps {
+
+  /** the parameter */
+  parameter: ParameterType, 
+
+  /** show validation icon */
+  'show-validation'?: boolean,
+
+  /** 
+   * manual validation rendering. this is intended for leaving 
+   * a blank space or perhaps doing ternary rendering.
+   */
+  'validation'?: () => string|undefined,
+
+  /** event handler */
+  focusin?: (event: FocusEvent) => void,
+
+  /** event handler */
+  focusout?: (event: FocusEvent) => void,
+
+}
+
 /**
  * render a parameter. connects with the interactive dialog via the
  * context to watch for changes (either typed in or via selection).
  * 
  * optionally include a validation marker (X or check)
  */
-export function Parameter(props: {
-    parameter: ParameterType, 
-    'show-validation'?: boolean,
-    focusin?: (event: FocusEvent) => void,
-    focusout?: (event: FocusEvent) => void,
-  }) {
+export function Parameter(props: ParameterProps) {
 
   const context = useContext(DialogContext);
 
@@ -104,9 +121,14 @@ export function Parameter(props: {
             spellcheck="false"
             contenteditable="true"
             ref={props.parameter.element}>{initial_value}</div>
-      <Show when={props['show-validation']}>
-        <ValidationIcon valid={props.parameter.valid()} />
-      </Show>
+      <Switch>
+        <Match when={props['show-validation']}>
+          <ValidationIcon valid={props.parameter.valid()} />
+        </Match>
+        <Match when={props.validation}>
+          <div class={style['validation-icon']} innerHTML={props.validation?.() || ''} />
+        </Match>
+      </Switch>
     </div>
   </>;
 
