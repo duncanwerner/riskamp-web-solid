@@ -151,6 +151,7 @@ export function UpdateNodes(
       update?: (dependencies: DependencyList) => void) {
   requestAnimationFrame(() => {
     const nodes = Array.from(root_node.querySelectorAll('div[data-selection-target]')) as HTMLDivElement[];
+
     sheet?.ExternalEditor({
       nodes,
     });

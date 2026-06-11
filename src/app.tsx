@@ -14,6 +14,7 @@ import { Spinner } from '~/components/spinner/spinner';
 import { useNavigate } from '@solidjs/router';
 import { setNavigator } from '~/lib/navigate';
 import { InitAppData } from './lib/app-data';
+import { HistoryProvider } from './components/history-context';
 
 
 
@@ -26,11 +27,13 @@ function Root(props: RouteSectionProps) {
   });
 
   return (
-    <MetaProvider>
-      <Title>RiskAMP Web</Title>
-      <Suspense>{props.children}</Suspense>
-      <Spinner />
-    </MetaProvider>
+    <HistoryProvider>
+      <MetaProvider>
+        <Title>RiskAMP Web</Title>
+        <Suspense>{props.children}</Suspense>
+        <Spinner />
+      </MetaProvider>
+    </HistoryProvider>
   );
 }
 

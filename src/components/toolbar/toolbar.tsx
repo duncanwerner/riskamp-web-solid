@@ -27,6 +27,7 @@ import { Color, ThemeColor } from '@trebco/treb';
 import { Measurement } from '@trebco/treb/treb-utils';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
+import { A } from '@solidjs/router';
 
 //////////////
 
@@ -70,29 +71,8 @@ export function Toolbar(props: ParentProps<Props>) {
   // const [session] = sessionSignal;
 
   const toolbar_config = createMutable(base_toolbar_config);
-  
+ 
   let subscription = 0;
-
-  const toolbar_props = props;
-
-  /*
-  onMount(() => {
-    if (props.sheet) {
-
-
-
-      const sheet = props.sheet;
-      subscription = sheet.Subscribe((event: MCEmbeddedSheetEvent|EmbeddedSheetEvent) => {
-        if (event.type === 'selection') {
-          UpdateState(sheet, toolbar_config);
-        }
-      });
-    }
-    else {
-      console.info("no sheet");
-    }
-  });
-  */
 
   createEffect(on(props.sheet, sheet => {
     if (sheet && !subscription) {
@@ -439,20 +419,20 @@ export function Toolbar(props: ParentProps<Props>) {
             <Match when={loggedIn()}>
               <DropMenu label={session().email || ''}>
               <menu>
-                <button disabled class={style['menu-item']} onclick={event => goto('/account')}>
+                <A classList={{[style['menu-item']]: true, [style.disabled]: true }} href='/account'>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.account-page')}</span>
-                </button>
-                <button class={style['menu-item']} onclick={event => goto('/documents')}>
+                </A>
+                <A class={style['menu-item']} href='/documents'>
                   <div class={style['svg-placeholder']}></div>
                   <span>{t('toolbar.menu-commands.documents')}</span>
-                </button>
+                </A>
 
                 <hr />
-                <button class={style['menu-item']} onclick={event => goto('/sign-out')}>
+                <A class={style['menu-item']} href='/sign-out'>
                   <div class='display-contents' innerHTML={bootstrap_icons.box_arrow_right}></div>
                   <span>{t('toolbar.menu-commands.sign-out')}</span>
-                </button>
+                </A>
               </menu>
             </DropMenu>
 

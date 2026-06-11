@@ -201,7 +201,9 @@ export function InteractiveDialog(props: ParentProps<Props>) {
       if (parameter.element) {
         parameter.element.textContent = value;
         parameter.setValue(value);
-        CompositeMircotask();
+        if (props.open()) {
+          CompositeMircotask();
+        }
       }
     }));
 

@@ -378,5 +378,20 @@ export default {
   'command-palette-ui.run-highlighted-command': 'Press Enter to run the highlighted command',
   'command-palette-ui.command-palette.label': 'Command palette',
 
+  'documents-page.title': 'Documents',
+  'documents-table.document.label': 'Document',
+  'documents-table.updated-date.label': 'Updated',
+  'documents-table.created-date.label': 'Created',
+  'documents-table.access.label': 'Access',
+  'documents-table.access.type-private': 'Private',
+  'documents-table.access.type-public': 'Public',
+  'documents-table.filter-documents.label': 'Filter documents',
+
+  'documents-table.controls.delete-selected': 'Delete selected',
+  'documents-table.controls.make-public': 'Make public',
+  'documents-table.controls.make-private': 'Make private',
+
+  'account-page.title': 'Account',
+
 };
 

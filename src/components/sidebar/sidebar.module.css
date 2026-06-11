@@ -269,6 +269,41 @@ header {
 
 }
 
+.names-layout {
+
+  padding: 1em .5em;
+  overflow: hidden;
+  height: 100%;
+  max-height: 100%;
+
+  .lambda-editor {
+    overflow: hidden;
+    textarea {
+      width: 100%;
+      height: 100%;
+      padding: .5em;
+      border-radius: 3px;
+      resize: none;
+      font-family: inherit;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+  }
+
+  .names-table {
+    overflow: hidden;
+    grid-template-columns: auto auto auto auto;
+
+    :global(.grid-table-row > *) {
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+}
+
 .quick-view-layout {
   padding: 1em .5em;
   display: grid;

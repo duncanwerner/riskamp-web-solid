@@ -342,7 +342,7 @@ export function Dialog(props: Props) {
           </div>
 
         </section>
-      </InteractiveDialog>;
+      </InteractiveDialog>
     </>;
 
 }

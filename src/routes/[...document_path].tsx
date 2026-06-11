@@ -404,6 +404,10 @@ export default function Page() {
 
         switch (event.type) {
           case 'load':
+            if (sheet.user_data?.note) {
+              setSidebar('notes');
+            }
+
           // case 'selection':
           // case 'annotation-selection':
           // case 'focus-view':
@@ -515,7 +519,6 @@ export default function Page() {
                            setOpen={setRunSimulationOpen}
                            options={runSimulationOptions}
                            sheet={getSheet} />
-
 
     </main>
   );

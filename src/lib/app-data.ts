@@ -1,6 +1,7 @@
 import { createStore, reconcile } from 'solid-js/store';
 import { createEffect, on } from 'solid-js';
 import { type Model } from 'treb-llm-support';
+import type { DocumentsRow } from '~/docs/documents';
 
 /**
  * FIXME: we should change how this works, make it deeper 
@@ -19,6 +20,16 @@ interface SessionData {
     edit_scroll?: number;
   }
 
+  /* moved to persistent 
+  documents?: {
+    sort?: keyof DocumentsRow;
+    asc?: boolean;
+    filter?: string;
+  }
+  */
+
+  selected_documents?: Record<number, boolean>;
+
 }
 
 export interface PersistentData {
@@ -36,6 +47,10 @@ export interface PersistentData {
   fit_ignore_strings: boolean;
   fit_ignore_boolean: boolean;
 
+  documents_sort?: keyof DocumentsRow;
+  documents_asc?: boolean;
+  documents_filter?: string;
+
 }
 
 interface AppData {
@@ -44,9 +59,21 @@ interface AppData {
 }
 
 export const [sessionData, setSessionData] = createStore<SessionData>({
+  
   active_tab: 0,
   last_split: 70,
   llm_tab_split: 70,
+
+  /*
+  documents: {
+    sort: 'modified',
+    asc: false,
+    filter: '',
+  },
+*/
+
+  selected_documents: {},
+
 });
 
 export const [persistentData, setPersistentData] = createStore<PersistentData>({
@@ -64,6 +91,10 @@ export const [persistentData, setPersistentData] = createStore<PersistentData>({
   fit_ignore_blanks: true,
   fit_ignore_boolean: true,
   fit_ignore_strings: true,
+
+  documents_asc: false,
+  documents_sort: 'modified',
+  documents_filter: '',
 
 });
 
