@@ -33,6 +33,7 @@
     "riskamp-web": "file:../RAW",
     "s5-icon-lib": "file:../s5/icons",
     "treb-llm-support": "file:../treb-llm-support",
-    "valibot": "^1.4.1"
+    "valibot": "^1.4.1",
+    "wrangler": "^4.100.0"
   }
 }
