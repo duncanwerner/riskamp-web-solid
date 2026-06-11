@@ -1,5 +1,5 @@
 
-import { createEffect, createSignal, For, Match, on, Switch } from 'solid-js';
+import { createEffect, createMemo, createSignal, For, Match, on, Switch } from 'solid-js';
 import { CreateParameters, InteractiveDialog, Parameter, type Props } from '../interactive-dialog/interactive-dialog';
 import { I18N, t } from '~/i18n/i18n';
 import { EmbeddedSheetEvent, ICellAddress, MCEmbeddedSheetEvent } from 'riskamp-web';
@@ -10,6 +10,7 @@ import { SpreadsheetType } from '~/lib/spreadsheet-type';
 import { IsCellAddress } from '@trebco/treb/treb-base-types';
 import { persistentData, setPersistentData } from '~/lib/app-data';
 import { produce } from 'solid-js/store';
+import { info } from 'node:console';
 
 const [open, setOpen] = createSignal(false);
 
@@ -20,13 +21,14 @@ export const props: Omit<Props, 'sheet'> = {
 
 interface ParameterType {
   label: keyof I18N;
+  info: keyof I18N;
   validate?: (value: string) => boolean;
 }
 
 export function Dialog(props: Props) {
 
   let subscription = 0;
-  const bindsize = createSignal<Size|undefined>({width: 360, height: 400});
+  const bindsize = createSignal<Size|undefined>({width: 360, height: 420});
   const [running, setRunning] = createSignal(false);
 
 
@@ -77,15 +79,27 @@ export function Dialog(props: Props) {
     return type?.type === 'address'||type?.type === 'number';
   }
 
+  function ValidateOptionalAddressOrNumber(value: string): boolean {
+    if (!value) {
+      return true;
+    }
+    const type = ValueType(value);
+    return type?.type === 'address'||type?.type === 'number';
+  }
+
   const parameters = CreateParameters<ParameterType>([
     {
       label: 'las-vegas-simulation.inputs.accept.title',
+      info: 'las-vegas-simulation.inputs.accept.description',
       validate: ValidateAddress,
     }, {
       label: 'las-vegas-simulation.inputs.complete.title',
+      info: 'las-vegas-simulation.inputs.complete.description',
       validate: ValidateAddressOrNumber,
     }, {
       label: 'las-vegas-simulation.inputs.fail.title',
+      info: 'las-vegas-simulation.inputs.fail.description',
+      validate: ValidateOptionalAddressOrNumber,
     }
   ]);
 
@@ -182,6 +196,9 @@ export function Dialog(props: Props) {
         InitParameters(sheet);
       }
       window.addEventListener('keydown', HandleKeyDown);
+      requestAnimationFrame(() => {
+
+      });
     }
     else {
       const sheet = props.sheet();
@@ -241,58 +258,100 @@ export function Dialog(props: Props) {
     }
   }
 
+  let [info, setInfo] = createSignal('');
+  let start_button: HTMLButtonElement|undefined;
+
+  const allValid = createMemo(() => {
+    return parameters[0].valid() && parameters[1].valid() && parameters[2].valid();
+  });
+
+  function UpdateInfo(info?: keyof I18N) {
+    if (info) {
+      setInfo(t(info));
+    }
+    else {
+      setInfo('');
+    }
+  }
+
   return <>
-      <InteractiveDialog {...props} moveable bindsize={bindsize}>
+      <InteractiveDialog moveable 
+                         bindsize={bindsize}
+                         help="https://riskamp.com/las-vegas-simulation/"
+                         {...props}>
         <header>
           {t('las-vegas-simulation-panel.title')}
         </header>
-        <section>
+        <section class={style.layout}>
           <div class={style.table}>
 
             {/* why not loop? parameter 2 is special */}
 
             <div class={style.row}>
               <div>{t(parameters[0].label)}</div>
-              <Parameter parameter={parameters[0]} show-validation />
+              <Parameter parameter={parameters[0]} 
+                         focusin={e => UpdateInfo(parameters[0].info)}
+                         focusout={e => UpdateInfo()}
+                         show-validation />
             </div>
 
             <div class={style.row}>
               <div>{t(parameters[1].label)}</div>
-              <Parameter parameter={parameters[1]} show-validation />
+              <Parameter parameter={parameters[1]} 
+                         focusin={e => UpdateInfo(parameters[1].info)}
+                         focusout={e => UpdateInfo()}
+                         show-validation />
             </div>
 
             <div class={style.row}>
               <div>{t(parameters[2].label)}</div>
-              <Parameter parameter={parameters[2]} validation={failValid} />
+              <Parameter parameter={parameters[2]} 
+                         focusin={e => UpdateInfo(parameters[2].info)}
+                         focusout={e => UpdateInfo()}
+  show-validation
+                         />
             </div>
 
           </div>
 
-          <div>
-            <label>
-              <input disabled={running()} 
-                      type="checkbox" 
-                      onchange={e => setPersistentData(produce(s => { s.stepped = e.currentTarget.checked; })) }
-                      checked={persistentData.stepped}></input>
-              <span>{t('run-simulation.screen-updates')}</span>
-            </label>
+          <hr />
+
+          <div class={style.info}>
+            <p>{t('las-vegas-simulation.options-overview')}</p>
+            <p>{info()}</p>
           </div>
 
-          <div class="buttons">
-            <button class="control-button"
-                    onclick={() => Start()} 
-                    disabled={running()} >{t('run-simulation-start-label')}</button>
-            <button class="control-button" onclick={Cancel}>
-              <Switch>
-                <Match when={running()}>
-                  {t('run-simulation-cancel-title')}
-                </Match>
-                <Match when={true}>
-                  {t('dialog-close-title')}
-                </Match>
-              </Switch>
-            </button>
-          </div>
+          <hr />
+
+          <div class={style.controls}>
+            <div class={style.centered}>
+              <label>
+                <input disabled={running()} 
+                        type="checkbox" 
+                        onchange={e => setPersistentData(produce(s => { s.stepped = e.currentTarget.checked; })) }
+                        checked={persistentData.stepped}></input>
+                <span>{t('run-simulation.screen-updates')}</span>
+              </label>
+            </div>
+
+            <div class={style.buttons}>
+              <button class="control-button"
+                      onclick={() => Start()} 
+                      ref={start_button}
+                      disabled={running() || !allValid()} >
+                        {t('run-simulation-start-label')}</button>
+              <button class="control-button" onclick={Cancel}>
+                <Switch>
+                  <Match when={running()}>
+                    {t('run-simulation-cancel-title')}
+                  </Match>
+                  <Match when={true}>
+                    {t('dialog-close-title')}
+                  </Match>
+                </Switch>
+              </button>
+            </div>
+            </div>
 
         </section>
       </InteractiveDialog>;

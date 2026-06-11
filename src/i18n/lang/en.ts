@@ -307,7 +307,7 @@ export default {
   "las-vegas-simulation.inputs.fail.description": "Fail is a cell that returns TRUE to exit the simulation, or a maximum total number of trials. Optional.",
   "las-vegas-simulation.more-information-link.title": "More information",
   "las-vegas-simulation.running-simulation": "Running simulation...",
-  "las-vegas-simulation.options-overview": "Enter options for a Las Vegas simulation. Options will be saved with your model.",
+  "las-vegas-simulation.options-overview": "Enter options for a Las Vegas simulation.",
 
   "insert-function.button.title": "Insert function...",
   "insert-function.insert-function": "Insert function",
