@@ -18,7 +18,7 @@ import { goto, OpenExternal } from '~/lib/navigate';
 import { RunSimulationDialog, type Options as RunSimulationOptions } from '~/components/dialogs/run-simulation-dialog/run-simulation-dialog';
 import { SparklineDialog, SparklineData } from '~/components/dialogs/sparkline-dialog/sparkline-dialog';
 import { InsertFunctionDialog } from '~/components/dialogs/insert-function-dialog/insert-function-dilalog';
-import { Dialog as LasVegasDialog, props as las_vegas_props } from '~/components/dialogs/last-vegas-simulation/last-vegas-simulation';
+import { Dialog as LasVegasDialog, props as las_vegas_props } from '~/components/dialogs/las-vegas-simulation/las-vegas-simulation';
 
 import { HijackDialog } from '~/lib/hijack-dialog';
 import { ApplyProperty, BooleanKeys } from '~/lib/typescript-magic';

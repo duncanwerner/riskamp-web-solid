@@ -179,14 +179,17 @@ export function Dialog(props: Props) {
           switch (event.type) {
             case 'simulation-aborted':
               setRunning(false);
+              setInfo('');
               break;
       
             case 'simulation-complete':
               setRunning(false);
-              // setOpen(false);
+              setInfo('');
+              setOpen(false);
               break;
       
             case 'simulation-progress':
+              setInfo(t('las-vegas-simulation.running-simulation'));
               // progress = event.progress;
               // console.info(event);
               break;
@@ -208,6 +211,7 @@ export function Dialog(props: Props) {
         }
       }
       window.removeEventListener('keydown', HandleKeyDown);
+      setInfo('');
     }
   }));
 
@@ -274,6 +278,15 @@ export function Dialog(props: Props) {
     }
   }
 
+  function close_label() {
+    if (running()) {
+      return t('run-simulation-cancel-label');
+    }
+    else {
+      return t('dialog-close-label');
+    }
+  };
+
   return <>
       <InteractiveDialog moveable 
                          bindsize={bindsize}
@@ -285,33 +298,17 @@ export function Dialog(props: Props) {
         <section class={style.layout}>
           <div class={style.table}>
 
-            {/* why not loop? parameter 2 is special */}
-
-            <div class={style.row}>
-              <div>{t(parameters[0].label)}</div>
-              <Parameter parameter={parameters[0]} 
-                         focusin={e => UpdateInfo(parameters[0].info)}
-                         focusout={e => UpdateInfo()}
-                         show-validation />
-            </div>
-
-            <div class={style.row}>
-              <div>{t(parameters[1].label)}</div>
-              <Parameter parameter={parameters[1]} 
-                         focusin={e => UpdateInfo(parameters[1].info)}
-                         focusout={e => UpdateInfo()}
-                         show-validation />
-            </div>
-
-            <div class={style.row}>
-              <div>{t(parameters[2].label)}</div>
-              <Parameter parameter={parameters[2]} 
-                         focusin={e => UpdateInfo(parameters[2].info)}
-                         focusout={e => UpdateInfo()}
-  show-validation
-                         />
-            </div>
-
+            <For each={parameters}>
+              {parameter => 
+                <div class={style.row}>
+                  <div>{t(parameter.label)}</div>
+                  <Parameter parameter={parameter} 
+                            focusin={e => UpdateInfo(parameter.info)}
+                            focusout={e => UpdateInfo()}
+                            show-validation />
+                </div>
+              }
+            </For>
           </div>
 
           <hr />
@@ -340,18 +337,9 @@ export function Dialog(props: Props) {
                       ref={start_button}
                       disabled={running() || !allValid()} >
                         {t('run-simulation-start-label')}</button>
-              <button class="control-button" onclick={Cancel}>
-                <Switch>
-                  <Match when={running()}>
-                    {t('run-simulation-cancel-title')}
-                  </Match>
-                  <Match when={true}>
-                    {t('dialog-close-title')}
-                  </Match>
-                </Switch>
-              </button>
+              <button class="control-button" onclick={Cancel} innerText={close_label()} />
             </div>
-            </div>
+          </div>
 
         </section>
       </InteractiveDialog>;
