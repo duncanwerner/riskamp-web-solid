@@ -1,10 +1,32 @@
 
-form.form {
+.layout {
+
+  margin: 3em auto;
+  display: inline-block;
+
+  ul {
+    li {
+      padding: .3em 0;
+    }
+  }
+
   display: flex;
   flex-direction: column;
-  gap: .5em;
+  gap: 1em;
+
+  hr {
+    width: 100%;
+    opacity: .5;;
+  }
+  
+}
+
+form.form {
+
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
   padding: 1em;
-  margin: auto;
   width: 300px;
   font-size: 13px;
 

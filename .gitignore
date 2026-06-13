@@ -6,6 +6,10 @@ dist
 .vinxi
 app.config.timestamp_*.js
 
+.nitro
+.solid-start
+
+
 # Environment
 .env
 .env*.local

@@ -393,5 +393,10 @@ export default {
 
   'account-page.title': 'Account',
 
+  'sign-in.page.title': 'Sign in',
+  'sign-in.form.username.placeholder': 'Username or email',
+  'sign-in.form.password.placeholder': 'Password',
+  
+
 };
 

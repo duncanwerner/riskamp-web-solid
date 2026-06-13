@@ -28,6 +28,7 @@ import { Measurement } from '@trebco/treb/treb-utils';
 import { ColorButton } from './toolbar-color-picker';
 import { CompositeMenu } from './composite-menu';
 import { A } from '@solidjs/router';
+import { CommandPalette } from '../command-palette/command-palette';
 
 //////////////
 
@@ -411,7 +412,7 @@ export function Toolbar(props: ParentProps<Props>) {
         <div class={style.separator}></div>
 
         <div class={style['command-palette-container']}>
-          (command palette)
+          <CommandPalette sheet={props.sheet} oncommand={props.oncommand}/>
         </div>
 
         <div class={style.login}>

@@ -1,0 +1,55 @@
+
+[contenteditable] {
+
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: #fff;
+  border-radius: 3px;
+  padding: 7px 4px;
+  width: 25em;
+  position: relative;
+  font-size: 13px;
+
+  padding-left: 1.75em;
+
+  &:before {
+    content: attr(data-prompt);
+    position: absolute;
+    left: .5em;
+  }
+
+}
+
+
+.menu {
+  margin: 0;
+  transform-origin: top left;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  margin-top: 3px;
+  min-height: 13em;
+  max-height: 25%;
+  height: 20em;
+  overflow-y: scroll;
+
+  box-shadow: var(--dialog-box-shadow, 1px 10px 18px 1px rgba(0,0,0,0.124));
+  padding: 1em;
+
+  ul, menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      margin: 0;
+      padding: 4px;
+    }
+  }
+  
+}
+
+.container {
+  margin: 0 .5em;
+  position: relative;
+}

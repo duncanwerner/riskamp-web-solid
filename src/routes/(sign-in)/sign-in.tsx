@@ -6,6 +6,9 @@ import { goto } from '~/lib/navigate';
 import { Show } from 'solid-js';
 import { Navigate } from '@solidjs/router';
 
+import { Toolbar } from '~/components/toolbar/account-toolbar';
+import { t } from '~/i18n/i18n';
+
 export default function SignIn() {
 
   const HandleSubmit = (e: SubmitEvent) => {
@@ -27,13 +30,37 @@ export default function SignIn() {
 
   return (
     <Show when={!auth.loggedIn()} fallback={<Navigate href="/" />}>
-      <main>
-        <Title>Sign in</Title>
-        <form class={style.form} onsubmit={HandleSubmit}>
-          <input name="username" autocomplete='username' type="text" placeholder="username" />
-          <input name="password" autocomplete='current-password' type="password" />
-          <button type="submit">Sign in</button>
-        </form>
+      <main class="fixed">
+        <Toolbar title='sign-in.page.title' />
+        <Title>{t('sign-in.page.title')}</Title>
+
+        <div class={style.layout}>
+
+          <form class={style.form} onsubmit={HandleSubmit}>
+            <input class="input" 
+                  name="username" 
+                  autocomplete='username' 
+                  type="text" 
+                  placeholder={t('sign-in.form.username.placeholder')} />
+            <input class="input" 
+                  name="password" 
+                  autocomplete='current-password' 
+                  type="password" 
+                  placeholder={t('sign-in.form.password.placeholder')} />
+            <button class="control-button" type="submit">Sign in</button>
+          </form>
+
+          <hr/>
+
+          <div>
+            <ul>
+              <li>Forgot password</li>
+              <li>Create account</li>
+            </ul>
+          </div>
+
+        </div>
+
       </main>
     </Show>
   );

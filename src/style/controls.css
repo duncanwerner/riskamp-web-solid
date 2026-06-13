@@ -1,5 +1,5 @@
 
-input[type=text].input, select.select, button.control-button {
+input[type=text].input, input[type=password].input, select.select, button.control-button {
   
   height: var(--toolbar-control-size);
   border-radius: var(--toolbar-control-border-radius);

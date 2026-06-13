@@ -1,6 +1,6 @@
 
 import * as auth from '~/lib/auth/auth';
-import { Page as ParentPage } from '~/components/protected-page';
+import { Page as ProtectedPage } from '~/components/protected-page';
 import style from './documents.module.css';
 import { createEffect, createMemo, createSignal, For, Match, on, onMount, Switch } from 'solid-js';
 import { documentsList, type DocumentsRow, ListDocuments } from '~/docs/documents';
@@ -257,7 +257,7 @@ export default function Page() {
     }
   }
 
-  return <ParentPage title='documents-page.title' class="fixed">
+  return <ProtectedPage title='documents-page.title' class="fixed">
     <section class={style.layout}>
         <Switch>
           <Match when={state() === 'error'}>
@@ -303,5 +303,5 @@ export default function Page() {
     </section>
 
 
-  </ParentPage>
+  </ProtectedPage>
 }

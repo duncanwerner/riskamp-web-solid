@@ -19,7 +19,9 @@ export default defineConfig({
   },
   plugins: [
     solidStart({ ssr: false }),
-    nitro()
+    nitro({
+      preset: 'cloudflare-pages-static',
+    })
   ],
   assetsInclude: ['**/*.wasm'],
 });

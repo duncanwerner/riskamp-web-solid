@@ -40,6 +40,16 @@
     overflow: hidden;
   }
 
+  &:not(:has(.grid-table-footer)) {
+    grid-template-rows: [header] auto [body] 1fr ;
+    padding-bottom: .1em;
+
+    .grid-table-body {
+      border-bottom: none;
+    }
+
+  }
+
 }
 
 .grid-table-row {

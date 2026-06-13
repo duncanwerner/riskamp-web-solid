@@ -32,6 +32,7 @@ import { A, useNavigate } from '@solidjs/router';
 
 export interface Props {
   title: keyof I18N;
+  'account-info'?: boolean;
 }
 
 export function Toolbar(props: Props) {
@@ -56,32 +57,34 @@ export function Toolbar(props: Props) {
         </div>
 
         <div class={style.login}>
-          <Switch>
-            <Match when={loggedIn()}>
-              <DropMenu label={session().email || ''}>
-              <menu>
-                <button disabled class={style['menu-item']} onclick={event => goto('/account')}>
-                  <div class={style['svg-placeholder']}></div>
-                  <span>{t('toolbar.menu-commands.account-page')}</span>
-                </button>
-                <button class={style['menu-item']} onclick={event => goto('/documents')}>
-                  <div class={style['svg-placeholder']}></div>
-                  <span>{t('toolbar.menu-commands.documents')}</span>
-                </button>
+          <Show when={props['account-info']}>
+            <Switch>
+              <Match when={loggedIn()}>
+                <DropMenu label={session().email || ''}>
+                <menu>
+                  <button disabled class={style['menu-item']} onclick={event => goto('/account')}>
+                    <div class={style['svg-placeholder']}></div>
+                    <span>{t('toolbar.menu-commands.account-page')}</span>
+                  </button>
+                  <button class={style['menu-item']} onclick={event => goto('/documents')}>
+                    <div class={style['svg-placeholder']}></div>
+                    <span>{t('toolbar.menu-commands.documents')}</span>
+                  </button>
 
-                <hr />
-                <button class={style['menu-item']} onclick={event => goto('/sign-out')}>
-                  <div class='display-contents' innerHTML={bootstrap_icons.box_arrow_right}></div>
-                  <span>{t('toolbar.menu-commands.sign-out')}</span>
-                </button>
-              </menu>
-            </DropMenu>
+                  <hr />
+                  <button class={style['menu-item']} onclick={event => goto('/sign-out')}>
+                    <div class='display-contents' innerHTML={bootstrap_icons.box_arrow_right}></div>
+                    <span>{t('toolbar.menu-commands.sign-out')}</span>
+                  </button>
+                </menu>
+              </DropMenu>
 
-            </Match>
-            <Match when={true}>
-              <a href='/sign-in'>Sign in</a>
-            </Match>
-          </Switch>
+              </Match>
+              <Match when={true}>
+                <a href='/sign-in'>Sign in</a>
+              </Match>
+            </Switch>
+          </Show>
         </div>
 
     </div>

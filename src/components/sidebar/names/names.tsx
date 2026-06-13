@@ -100,7 +100,12 @@ export function Sidebar(props: SidebarProps) {
       switch (named.type) {
         case 'range':
           setLambdaText('');
-          sheet.Select(named.area);
+          try {
+            sheet.Select(named.area);
+          }
+          catch (err) {
+            console.error(err);
+          }
           break;
 
         case 'expression':
@@ -108,6 +113,23 @@ export function Sidebar(props: SidebarProps) {
           break;
       }
     }
+  }
+
+  function Scope(named: Named) {
+    if (!named.scope) {
+      return t('names-panel.name-scope.workbook');
+    }
+
+    const sheet = props.sheet();
+    if (sheet) {
+      const target = sheet.model.sheets.Find(named.scope);
+      if (target) {
+        return target.name;
+      }
+    }
+
+    return '?';
+
   }
 
   const [split, setSplit] = createSignal(50);
@@ -130,7 +152,7 @@ export function Sidebar(props: SidebarProps) {
         <div>{t('names-panel.header.value')}</div>
       </div>
 
-      <div class="grid-table-body">
+      <div class="grid-table-body top-border">
 
         <For each={names()}>{named => 
           <div class="grid-table-row" onclick={e => Click(e, named)}>
@@ -140,7 +162,7 @@ export function Sidebar(props: SidebarProps) {
                 {named.name}
               </button>
             </div>
-            <div>{named.scope||t('names-panel.name-scope.workbook')}</div>
+            <div>{Scope(named)}</div>
             <div>{RenderNamed(named)}</div>
           </div>  
         }</For>
